@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CLK.Promises", "CLK.Promises\CLK.Promises.csproj", "{62A66988-0E92-4D4E-9046-1A1E4C6789AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CLK.Promises.WinConsole", "CLK.Promises.WinConsole\CLK.Promises.WinConsole.csproj", "{D455334D-033F-4FCB-8602-B5D73989A42C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{62A66988-0E92-4D4E-9046-1A1E4C6789AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62A66988-0E92-4D4E-9046-1A1E4C6789AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62A66988-0E92-4D4E-9046-1A1E4C6789AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62A66988-0E92-4D4E-9046-1A1E4C6789AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D455334D-033F-4FCB-8602-B5D73989A42C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D455334D-033F-4FCB-8602-B5D73989A42C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D455334D-033F-4FCB-8602-B5D73989A42C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D455334D-033F-4FCB-8602-B5D73989A42C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
