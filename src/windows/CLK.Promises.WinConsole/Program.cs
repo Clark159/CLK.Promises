@@ -10,8 +10,12 @@ namespace CLK.Promises.WinConsole
     {
         static void Main(string[] args)
         {
-            var x = new Deferred();            
+            // Deferred
+            var x = new Deferred();
+            x.Resolve();
             x.Promise
+
+                // Result
                 .Then<string>(delegate ()
                 {
                     return "AAA";
@@ -20,6 +24,8 @@ namespace CLK.Promises.WinConsole
                 {
                     Console.WriteLine(message);
                 })
+
+                // Throw
                 .Then(delegate ()
                 {
                     throw new Exception("BBB");
@@ -32,14 +38,37 @@ namespace CLK.Promises.WinConsole
                 {
                     Console.WriteLine(error.Message);
                 })
+
+                // Result - Promise
+                .Then<string>(delegate ()
+                {
+                    return Promise.Resolve("CCC");
+                })
+                .Then(delegate (string message)
+                {
+                    Console.WriteLine(message);
+                })
+
+                // Throw
                 .Then(delegate ()
                 {
-                    Console.WriteLine("CCC");
+                    return Promise.Reject(new Exception("DDD"));
+                })
+                .Catch(delegate (Exception error)
+                {
+                    throw error;
+                })
+                .Catch(delegate (Exception error)
+                {
+                    Console.WriteLine(error.Message);
+                })
+                
+                // End
+                .Then(delegate ()
+                {
+                    Console.WriteLine("End");
                 })
             ;
-            x.Resolve();
-
-            //x.Reject(new Exception("GGG"));
 
             Console.ReadLine();
         }

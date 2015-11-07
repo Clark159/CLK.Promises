@@ -17,6 +17,26 @@ namespace CLK.Promises
            }
         )
         { }
+
+
+        // Methods 
+        public static Promise<TResult> Resolve<TResult>(TResult result)
+        {
+            // Create
+            return new Promise<TResult>(delegate (Action<TResult> resolve, Action<Exception> reject, Action<Progress> notify)
+            {
+                resolve(result);
+            });
+        }
+
+        public static Promise Reject(Exception error)
+        {
+            // Create
+            return new Promise(delegate (Action resolve, Action<Exception> reject, Action<Progress> notify)
+            {
+                reject(error);
+            });
+        }
     }
 
     public class Promise<TResult>
