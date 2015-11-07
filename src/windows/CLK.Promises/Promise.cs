@@ -104,18 +104,28 @@ namespace CLK.Promises
 
             #endregion
 
-            // Pending         
+            // Sync         
             lock (_syncRoot)
-            {
+            {                
+                // ResolveHandler
                 if (_state == PromiseState.Pending)
                 {
-                    // Handlers
                     _resolveHandlers.Add(resolveHandler);
-                    _rejectHandlers.Add(rejectHandler);
-                    _notifyHandlers.Add(notifyHandler);
-                    _notifyHandlersSnapshot = null;
+                }
 
-                    // Return
+                // RejectHandler
+                if (_state == PromiseState.Pending)
+                {
+                    _rejectHandlers.Add(rejectHandler);
+                }
+
+                // NotifyHandler
+                _notifyHandlers.Add(notifyHandler);
+                _notifyHandlersSnapshot = null;
+
+                // Pending
+                if (_state == PromiseState.Pending)
+                {
                     return;
                 }
             }
@@ -188,14 +198,7 @@ namespace CLK.Promises
             if (progress == null) throw new ArgumentNullException();
 
             #endregion
-
-            // Sync
-            lock (_syncRoot)
-            {
-                // State
-                if (_state != PromiseState.Pending) return;
-            }
-
+                        
             // Notify
             foreach (var notifyHandler in this.GetNotifyHandlers())
             {
