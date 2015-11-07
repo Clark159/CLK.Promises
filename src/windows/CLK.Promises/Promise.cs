@@ -30,6 +30,7 @@ namespace CLK.Promises
 
         private Exception _error = null;
 
+
         private List<Action<TResult>> _resolveHandlers = new List<Action<TResult>>();
 
         private List<Action<Exception>> _rejectHandlers = new List<Action<Exception>>();
@@ -37,6 +38,13 @@ namespace CLK.Promises
         private List<Action<Progress>> _notifyHandlers = new List<Action<Progress>>();
 
         private List<Action<Progress>> _notifyHandlersSnapshot = null;
+
+
+        private Action _passResolved = null;
+
+        private Action<Exception> _passRejected = null;
+
+        private Action<Progress> _passNotified = null;
 
 
         // Constructors
@@ -92,8 +100,8 @@ namespace CLK.Promises
             // Return
             return notifyHandlers;
         }
-        
-                
+
+
         private void DoResolve(TResult result = default(TResult))
         {
             // Sync
@@ -149,7 +157,7 @@ namespace CLK.Promises
             if (progress == null) throw new ArgumentNullException();
 
             #endregion
-                        
+
             // Notify
             foreach (var notifyHandler in this.GetNotifyHandlers())
             {
@@ -157,7 +165,7 @@ namespace CLK.Promises
             }
         }
 
- 
+
         private void PushHandlers(Action<TResult> resolveHandler, Action<Exception> rejectHandler, Action<Progress> notifyHandler)
         {
             #region Contracts
@@ -424,6 +432,43 @@ namespace CLK.Promises
         }
 
 
+        private Action PassResolved()
+        {
+            if (_passResolved == null)
+            {
+                _passResolved = delegate ()
+                {
+                   
+                };
+            }
+            return _passResolved;
+        }
+
+        private Action<Exception> PassRejected()
+        {
+            if (_passRejected == null)
+            {
+                _passRejected = delegate (Exception error)
+                {
+                    throw error;
+                };
+            }
+            return _passRejected;
+        }
+
+        private Action<Progress> PassNotified()
+        {
+            if (_passNotified == null)
+            {
+                _passNotified = delegate (Progress progress)
+                {
+
+                };
+            }
+            return _passNotified;
+        }
+
+
         // Then(Func<out *>)
         public Promise Then(Action onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
@@ -442,7 +487,7 @@ namespace CLK.Promises
                 onNotified
             );
         }
-        
+
 
         public Promise Then(Func<Promise> onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
@@ -481,7 +526,7 @@ namespace CLK.Promises
                 onNotified
             );
         }
-        
+
 
         public Promise Then(Func<TResult, Promise> onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
@@ -500,7 +545,7 @@ namespace CLK.Promises
                 onNotified
             );
         }
-        
+
 
         // Then<TNewResult>(Func<out *>)
         public Promise<TNewResult> Then<TNewResult>(Action onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
@@ -797,6 +842,115 @@ namespace CLK.Promises
                 delegate (Exception error) { return onRejected(error); },
                 onNotified
             );
+        }
+
+
+        // Then(Func<out *>) - Syntactic sugar
+        public Promise Then(Action onResolved)
+        {
+            return this.Then(onResolved, this.PassRejected(), this.PassNotified());
+        }
+
+        public Promise Then(Func<Promise> onResolved)
+        {
+            return this.Then(onResolved, this.PassRejected(), this.PassNotified());
+        }
+
+
+        // Then(Func<TResult, out *>) - Syntactic sugar
+        public Promise Then(Action<TResult> onResolved)
+        {
+            return this.Then(onResolved, this.PassRejected(), this.PassNotified());
+        }
+
+        public Promise Then(Func<TResult, Promise> onResolved)
+        {
+            return this.Then(onResolved, this.PassRejected(), this.PassNotified());
+        }
+
+
+        // Then<TNewResult>(Func<out *>) - Syntactic sugar
+        public Promise<TNewResult> Then<TNewResult>(Action onResolved)
+        {
+            return this.Then<TNewResult>(onResolved, this.PassRejected(), this.PassNotified());
+        }
+
+        public Promise<TNewResult> Then<TNewResult>(Func<Promise> onResolved)
+        {
+            return this.Then<TNewResult>(onResolved, this.PassRejected(), this.PassNotified());
+        }
+
+        public Promise<TNewResult> Then<TNewResult>(Func<TNewResult> onResolved)
+        {
+            return this.Then<TNewResult>(onResolved, this.PassRejected(), this.PassNotified());
+        }
+
+        public Promise<TNewResult> Then<TNewResult>(Func<Promise<TNewResult>> onResolved)
+        {
+            return this.Then<TNewResult>(onResolved, this.PassRejected(), this.PassNotified());
+        }
+
+
+        // Then<TNewResult>(Func<TResult, out *>) - Syntactic sugar
+        public Promise<TNewResult> Then<TNewResult>(Action<TResult> onResolved)
+        {
+            return this.Then<TNewResult>(onResolved, this.PassRejected(), this.PassNotified());
+        }
+
+        public Promise<TNewResult> Then<TNewResult>(Func<TResult, Promise> onResolved)
+        {
+            return this.Then<TNewResult>(onResolved, this.PassRejected(), this.PassNotified());
+        }
+
+        public Promise<TNewResult> Then<TNewResult>(Func<TResult, TNewResult> onResolved)
+        {
+            return this.Then<TNewResult>(onResolved, this.PassRejected(), this.PassNotified());
+        }
+
+        public Promise<TNewResult> Then<TNewResult>(Func<TResult, Promise<TNewResult>> onResolved)
+        {
+            return this.Then<TNewResult>(onResolved, this.PassRejected(), this.PassNotified());
+        }
+
+
+        // Catch - Syntactic sugar
+        public Promise Catch(Action<Exception> onRejected)
+        {
+            return this.Then(this.PassResolved(), onRejected, this.PassNotified());
+        }
+
+        public Promise Catch(Func<Exception, Promise> onRejected)
+        {
+            return this.Then(this.PassResolved(), onRejected, this.PassNotified());
+        }
+
+
+        // Catch<TNewResult> - Syntactic sugar
+        public Promise<TNewResult> Catch<TNewResult>(Action<Exception> onRejected)
+        {
+            return this.Then<TNewResult>(this.PassResolved(), onRejected, this.PassNotified());
+        }
+
+        public Promise<TNewResult> Catch<TNewResult>(Func<Exception, Promise> onRejected)
+        {
+            return this.Then<TNewResult>(this.PassResolved(), onRejected, this.PassNotified());
+        }
+
+        public Promise<TNewResult> Catch<TNewResult>(Func<Exception, TNewResult> onRejected)
+        {
+            return this.Then<TNewResult>(this.PassResolved(), onRejected, this.PassNotified());
+        }
+
+        public Promise<TNewResult> Catch<TNewResult>(Func<Exception, Promise<TNewResult>> onRejected)
+        {
+            return this.Then<TNewResult>(this.PassResolved(), onRejected, this.PassNotified());
+        }
+
+
+        // Notify - Syntactic sugar
+        public Promise Notify(Action<Progress> onNotified)
+        {
+            return this.Then(this.PassResolved(), this.PassRejected(), onNotified);
         }
     }
 }

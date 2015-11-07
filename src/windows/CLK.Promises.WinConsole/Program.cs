@@ -14,15 +14,31 @@ namespace CLK.Promises.WinConsole
             x.Promise
                 .Then<string>(delegate ()
                 {
-                    return "Clark1111";
-                }, delegate (Exception error) { Console.WriteLine("Error:" + error.Message); }, delegate (Progress progress) { })
-                .Then(delegate (string aaa)
+                    return "AAA";
+                })
+                .Then(delegate (string message)
                 {
-                    Console.WriteLine(aaa);
-                }, delegate (Exception error) { Console.WriteLine("Error:" + error.Message); }, delegate (Progress progress) { })
+                    Console.WriteLine(message);
+                })
+                .Then(delegate ()
+                {
+                    throw new Exception("BBB");
+                })
+                .Catch(delegate(Exception error)
+                {
+                    throw error;
+                })
+                .Catch(delegate (Exception error)
+                {
+                    Console.WriteLine(error.Message);
+                })
+                .Then(delegate ()
+                {
+                    Console.WriteLine("CCC");
+                })
             ;
-
             x.Resolve();
+
             //x.Reject(new Exception("GGG"));
 
             Console.ReadLine();
