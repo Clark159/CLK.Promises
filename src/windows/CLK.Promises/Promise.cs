@@ -426,7 +426,8 @@ namespace CLK.Promises
             {
                 _passResolved = delegate ()
                 {
-                   
+                   // Nothing
+
                 };
             }
             return _passResolved;
@@ -438,6 +439,7 @@ namespace CLK.Promises
             {
                 _passRejected = delegate (Exception error)
                 {
+                    // Throw
                     throw error;
                 };
             }
@@ -450,7 +452,8 @@ namespace CLK.Promises
             {
                 _passNotified = delegate (Progress progress)
                 {
-                    
+                    // Nothing
+
                 };
             }
             return _passNotified;
