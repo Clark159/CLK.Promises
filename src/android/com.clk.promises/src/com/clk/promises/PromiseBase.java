@@ -2,14 +2,27 @@ package com.clk.promises;
 
 
 import java.util.ArrayList;
-
 import com.clk.Action;
 import com.clk.Func;
-import com.clk.Func.Type1;
 
 
 public class PromiseBase<TResult> {
 
+	// enumerations
+    private enum PromiseState {
+        Pending,  // unresolved  
+        Resolved, // has-resolution
+        Rejected, // has-rejection
+    };
+
+    private enum ResultType {
+        NullResult,
+        NullResultPromise,
+        NewResult,
+        NewResultPromise,
+    }
+    
+    
 	// fields
     private Object _syncRoot = new Object();
 
@@ -180,7 +193,9 @@ public class PromiseBase<TResult> {
         }
     }
 
-    private Promise pushThen(final Func.Type1<TResult, Object> onResolved, final Func.Type1<Exception, Object> onRejected, final Action.Type1<Progress> onNotified)
+    private Promise pushThen(final Func.Type1<TResult, Object> onResolved, final ResultType onResolvedResultType,
+    						 final Func.Type1<Exception, Object> onRejected, final ResultType onRejectedResultType, 
+    						 final Action.Type1<Progress> onNotified)
     {
     	// promise
     	final Promise thenPromise = new Promise();
@@ -195,22 +210,23 @@ public class PromiseBase<TResult> {
 	                Object resultObject = onResolved.raise(result);
 
 	                // distribute
-	                if (resultObject == null)
-	                {
-	                    thenPromise.innerResolve(null);
-	                }
-	                else if (resultObject instanceof Promise)
-	                {
-	                	((Promise)resultObject).then(
-	                		new Action.Type0() { @Override public void raise() {  thenPromise.innerResolve(null); }},	
-	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.innerReject(thenError); }},
-	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.innerNotify(thenProgress); }}
-	                    );
-	                }
-	                else
-	                {
-	                    throw new Exception("Invalid Result");
-	                }
+	                switch (onResolvedResultType)
+                    {
+                        case NullResult:
+                        	thenPromise.innerResolve(null);
+                            break;
+
+                        case NullResultPromise:
+                        	((Promise)resultObject).then(
+    	                		new Action.Type0() { @Override public void raise() {  thenPromise.innerResolve(null); }},	
+    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.innerReject(thenError); }},
+    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.innerNotify(thenProgress); }}
+    	                    );
+                            break;
+
+                        default:
+                            throw new Exception("Invalid Result");
+                    }
 	            }
 	            catch (Exception ex)
 	            {
@@ -228,22 +244,23 @@ public class PromiseBase<TResult> {
 	                Object resultObject = onRejected.raise(error);
 	
 	                // distribute
-	                if (resultObject == null)
-	                {
-	                    thenPromise.innerResolve(null);
-	                }
-	                else if (resultObject instanceof Promise)
-	                {
-	                	((Promise)resultObject).then(
-	                		new Action.Type0() { @Override public void raise() {  thenPromise.innerResolve(null); }},	
-	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.innerReject(thenError); }},
-	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.innerNotify(thenProgress); }}
-	                    );
-	                }
-	                else
-	                {
-	                    throw new Exception("Invalid Result");
-	                }
+	                switch (onRejectedResultType)
+                    {
+                        case NullResult:
+                        	thenPromise.innerResolve(null);
+                            break;
+
+                        case NullResultPromise:
+                        	((Promise)resultObject).then(
+    	                		new Action.Type0() { @Override public void raise() {  thenPromise.innerResolve(null); }},	
+    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.innerReject(thenError); }},
+    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.innerNotify(thenProgress); }}
+    	                    );
+                            break;
+
+                        default:
+                            throw new Exception("Invalid Result");
+                    }
 	            }
 	            catch (Exception ex)
 	            {
@@ -277,13 +294,130 @@ public class PromiseBase<TResult> {
         return thenPromise;
     }
 
-    private <TNewResult> PromiseBase<TNewResult> pushThenBase(final Func.Type1<TResult, Object> onResolved, final Func.Type1<Exception, Object> onRejected, final Action.Type1<Progress> onNotified)
+    private <TNewResult> PromiseBase<TNewResult> pushThenBase(final Func.Type1<TResult, Object> onResolved, final ResultType onResolvedResultType,
+    														  final Func.Type1<Exception, Object> onRejected, final ResultType onRejectedResultType, 
+    														  final Action.Type1<Progress> onNotified)
     {
         // promise
     	final PromiseBase<TNewResult> thenPromise = new PromiseBase<TNewResult>();
-    	   	        
+    	 
+    	// handlers
+        Action.Type1<TResult> resolveHandler = new Action.Type1<TResult> ()
+        {        	
+			@SuppressWarnings("unchecked")
+			@Override public void raise(TResult result) {
+				try
+	            {
+	                // execute
+	                Object resultObject = onResolved.raise(result);
+
+	                // distribute
+	                switch (onResolvedResultType)
+                    {
+                        case NullResult:
+                        	thenPromise.innerResolve(null);
+                            break;
+
+                        case NullResultPromise:
+                        	((Promise)resultObject).then(
+    	                		new Action.Type0() { @Override public void raise() {  thenPromise.innerResolve(null); }},	
+    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.innerReject(thenError); }},
+    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.innerNotify(thenProgress); }}
+    	                    );
+                            break;
+                            
+                        case NewResult:
+                            thenPromise.innerResolve((TNewResult)resultObject);
+                            break;
+                            
+                        case NewResultPromise:
+                        	((PromiseBase<TNewResult>)resultObject).then(
+    	                		new Action.Type1<TNewResult>() { @Override public void raise(TNewResult thenResult) {  thenPromise.innerResolve(thenResult); }},	
+    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.innerReject(thenError); }},
+    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.innerNotify(thenProgress); }}
+    	                    );
+                        	break;
+                        	
+                        default:
+                            throw new Exception("Invalid Result");
+                    }
+	            }
+	            catch (Exception ex)
+	            {
+	                thenPromise.innerReject(ex);
+	            }
+			}        	
+        };
+        
+        Action.Type1<Exception> rejectHandler = new Action.Type1<Exception>() 
+        {
+        	@SuppressWarnings("unchecked")
+        	@Override public void raise(Exception error) {        		
+	            try
+	            {
+	                // execute
+	                Object resultObject = onRejected.raise(error);
+	
+	                // distribute
+	                switch (onRejectedResultType)
+                    {
+                        case NullResult:
+                        	thenPromise.innerResolve(null);
+                            break;
+
+                        case NullResultPromise:
+                        	((Promise)resultObject).then(
+    	                		new Action.Type0() { @Override public void raise() {  thenPromise.innerResolve(null); }},	
+    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.innerReject(thenError); }},
+    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.innerNotify(thenProgress); }}
+    	                    );
+                            break;
+                            
+                        case NewResult:
+                            thenPromise.innerResolve((TNewResult)resultObject);
+                            break;
+                            
+                        case NewResultPromise:
+                        	((PromiseBase<TNewResult>)resultObject).then(
+    	                		new Action.Type1<TNewResult>() { @Override public void raise(TNewResult thenResult) {  thenPromise.innerResolve(thenResult); }},	
+    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.innerReject(thenError); }},
+    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.innerNotify(thenProgress); }}
+    	                    );
+                        	break;
+
+                        default:
+                            throw new Exception("Invalid Result");
+                    }
+	            }
+	            catch (Exception ex)
+	            {
+	                thenPromise.innerReject(ex);
+	            }
+        	}
+        };
+        
+        Action.Type1<Progress> notifiedHandler = new Action.Type1<Progress>() 
+        {
+        	@Override public void raise(Progress progress) {
+	            try
+	            {
+	                // execute
+	                onNotified.raise(progress);
+	
+	                // distribute
+	                thenPromise.innerNotify(progress);
+	            }
+	            catch (Exception ex)
+	            {
+	                thenPromise.innerReject(ex);
+	            }
+			}
+        };
     	
-        // Return
+        // pushHandlers
+        this.pushHandlers(resolveHandler, rejectHandler, notifiedHandler);
+                
+    	// return
         return thenPromise;
     }
 
@@ -336,8 +470,8 @@ public class PromiseBase<TResult> {
     public Promise then(final Action.Type0 onResolved, final Action.Type1<Exception> onRejected, final Action.Type1<Progress> onNotified)
     {
     	return this.pushThen(
-			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { onResolved.raise(); return null; }},	
-			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { onRejected.raise(error); return null; }},
+			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { onResolved.raise(); return null; }}, ResultType.NullResult,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { onRejected.raise(error); return null; }}, ResultType.NullResult,
 			onNotified	
     	);
     }
@@ -345,8 +479,8 @@ public class PromiseBase<TResult> {
     public Promise then(final Action.Type0 onResolved, final Func.Type1<Exception, Promise> onRejected, final Action.Type1<Progress> onNotified)
     {
     	return this.pushThen(
-			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { onResolved.raise(); return null; }},	
-			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { return onRejected.raise(error); }},
+			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { onResolved.raise(); return null; }}, ResultType.NullResult,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { return onRejected.raise(error); }}, ResultType.NullResultPromise,
 			onNotified	
     	);
     }
@@ -355,8 +489,8 @@ public class PromiseBase<TResult> {
     public Promise then(final Func.Type0<Promise> onResolved, final Action.Type1<Exception> onRejected, final Action.Type1<Progress> onNotified)
     {
     	return this.pushThen(
-			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { return onResolved.raise(); }},	
-			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { onRejected.raise(error); return null; }},
+			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { return onResolved.raise(); }}, ResultType.NullResultPromise,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { onRejected.raise(error); return null; }}, ResultType.NullResult,
 			onNotified	
     	);
     }
@@ -364,8 +498,8 @@ public class PromiseBase<TResult> {
     public Promise then(final Func.Type0<Promise> onResolved, final Func.Type1<Exception, Promise> onRejected, final Action.Type1<Progress> onNotified)
     {
     	return this.pushThen(
-			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { return onResolved.raise(); }},	
-			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { return onRejected.raise(error); }},
+			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { return onResolved.raise(); }}, ResultType.NullResultPromise,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { return onRejected.raise(error); }}, ResultType.NullResultPromise,
 			onNotified	
     	);
     }
@@ -375,8 +509,8 @@ public class PromiseBase<TResult> {
     public Promise then(final Action.Type1<TResult> onResolved, final Action.Type1<Exception> onRejected, final Action.Type1<Progress> onNotified)
     {
     	return this.pushThen(
-			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { onResolved.raise(result); return null; }},	
-			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { onRejected.raise(error); return null; }},
+			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { onResolved.raise(result); return null; }}, ResultType.NullResult,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { onRejected.raise(error); return null; }}, ResultType.NullResult,
 			onNotified	
     	);
     }
@@ -384,8 +518,8 @@ public class PromiseBase<TResult> {
     public Promise then(final Action.Type1<TResult> onResolved, final Func.Type1<Exception, Promise> onRejected, final Action.Type1<Progress> onNotified)
     {
     	return this.pushThen(
-			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { onResolved.raise(result); return null; }},	
-			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { return onRejected.raise(error); }},
+			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { onResolved.raise(result); return null; }}, ResultType.NullResult,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { return onRejected.raise(error); }}, ResultType.NullResultPromise,
 			onNotified	
     	);
     }
@@ -394,8 +528,8 @@ public class PromiseBase<TResult> {
     public Promise then(final Func.Type1<TResult, Promise> onResolved, final Action.Type1<Exception> onRejected, final Action.Type1<Progress> onNotified)
     {
     	return this.pushThen(
-			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { return onResolved.raise(result); }},	
-			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { onRejected.raise(error); return null; }},
+			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { return onResolved.raise(result); }}, ResultType.NullResultPromise,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { onRejected.raise(error); return null; }}, ResultType.NullResult,
 			onNotified	
     	);
     }
@@ -403,10 +537,9 @@ public class PromiseBase<TResult> {
     public Promise then(final Func.Type1<TResult, Promise> onResolved, final Func.Type1<Exception, Promise> onRejected, final Action.Type1<Progress> onNotified)
     {
     	return this.pushThen(
-			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { return onResolved.raise(result); }},	
-			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { return onRejected.raise(error); }},
+			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) { return onResolved.raise(result); }}, ResultType.NullResultPromise,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { return onRejected.raise(error); }}, ResultType.NullResultPromise,
 			onNotified	
     	);
     }
-
 }
