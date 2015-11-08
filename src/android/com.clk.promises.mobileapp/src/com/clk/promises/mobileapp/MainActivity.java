@@ -1,6 +1,8 @@
 package com.clk.promises.mobileapp;
 
 import com.clk.promises.Progress;
+import com.clk.promises.Promise;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -26,6 +28,9 @@ public class MainActivity extends Activity {
     	
     	// Progress
         Progress progress = new Progress(0,100,"Clark");
+        
+		Promise promise = new Promise();
+        promise.innerResolve(null);
         		
 		// Alert
  		AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
