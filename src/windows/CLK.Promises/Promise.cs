@@ -10,32 +10,28 @@ namespace CLK.Promises
     public class Promise : Promise<Object>
     {
         // Constructors
-        public Promise(Action<Action, Action<Exception>, Action<Progress>> resolver) : base(
-           delegate (Action<Object> resolve, Action<Exception> reject, Action<Progress> notify)
-           {
-               resolver(delegate () { resolve(null); }, reject, notify);
-           }
-        )
-        { }
+        public Promise() { }
 
 
         // Methods 
         public static Promise<TResult> Resolve<TResult>(TResult result)
         {
-            // Create
-            return new Promise<TResult>(delegate (Action<TResult> resolve, Action<Exception> reject, Action<Progress> notify)
-            {
-                resolve(result);
-            });
+            // Promise
+            var promise = new Promise<TResult>();
+            promise.InnerResolve(result);
+
+            // Return
+            return promise;
         }
 
         public static Promise Reject(Exception error)
         {
-            // Create
-            return new Promise(delegate (Action resolve, Action<Exception> reject, Action<Progress> notify)
-            {
-                reject(error);
-            });
+            // Promise
+            var promise = new Promise();
+            promise.InnerReject(error);
+
+            // Return
+            return promise;
         }
     }
 
@@ -68,28 +64,11 @@ namespace CLK.Promises
 
 
         // Constructors
-        public Promise(Action<Action<TResult>, Action<Exception>, Action<Progress>> resolver)
-        {
-            #region Contracts
-
-            if (resolver == null) throw new ArgumentNullException();
-
-            #endregion
-
-            // Execute
-            try
-            {
-                resolver(this.DoResolve, this.DoReject, this.DoNotify);
-            }
-            catch (Exception ex)
-            {
-                this.DoReject(ex);
-            }
-        }
+        public Promise() { }
 
 
         // Methods 
-        private void DoResolve(TResult result = default(TResult))
+        internal void InnerResolve(TResult result = default(TResult))
         {
             // Sync
             lock (_syncRoot)
@@ -114,7 +93,7 @@ namespace CLK.Promises
             }
         }
 
-        private void DoReject(Exception error)
+        internal void InnerReject(Exception error)
         {
             #region Contracts
 
@@ -145,7 +124,7 @@ namespace CLK.Promises
             }
         }
 
-        private void DoNotify(Progress progress)
+        internal void InnerNotify(Progress progress)
         {
             #region Contracts
 
@@ -237,16 +216,7 @@ namespace CLK.Promises
         private Promise PushThen(Func<TResult, Object> onResolved, Func<Exception, Object> onRejected, Action<Progress> onNotified)
         {
             // Promise
-            Action thenResolve = null;
-            Action<Exception> thenReject = null;
-            Action<Progress> thenNotify = null;
-            var thenPromise = new Promise(delegate (Action resolve, Action<Exception> reject, Action<Progress> notify)
-            {
-                // Initialize
-                thenResolve = resolve;
-                thenReject = reject;
-                thenNotify = notify;
-            });
+            var thenPromise = new Promise();
 
             // Handlers
             Action<TResult> resolveHandler = delegate (TResult result)
@@ -259,14 +229,14 @@ namespace CLK.Promises
                     // Distribute
                     if (resultObject == null)
                     {
-                        thenResolve();
+                        thenPromise.InnerResolve();
                     }
                     else if (resultObject is Promise)
                     {
                         ((Promise)resultObject).Then(
-                            delegate () { thenResolve(); },
-                            delegate (Exception thenError) { thenReject(thenError); },
-                            delegate (Progress thenProgress) { thenNotify(thenProgress); }
+                            delegate () { thenPromise.InnerResolve(); },
+                            delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
+                            delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
                         );
                     }
                     else
@@ -276,7 +246,7 @@ namespace CLK.Promises
                 }
                 catch (Exception ex)
                 {
-                    thenReject(ex);
+                    thenPromise.InnerReject(ex);
                 }
             };
 
@@ -290,14 +260,14 @@ namespace CLK.Promises
                     // Distribute
                     if (resultObject == null)
                     {
-                        thenResolve();
+                        thenPromise.InnerResolve();
                     }
                     else if (resultObject is Promise)
                     {
                         ((Promise)resultObject).Then(
-                            delegate () { thenResolve(); },
-                            delegate (Exception thenError) { thenReject(thenError); },
-                            delegate (Progress thenProgress) { thenNotify(thenProgress); }
+                            delegate () { thenPromise.InnerResolve(); },
+                            delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
+                            delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
                         );
                     }
                     else
@@ -307,7 +277,7 @@ namespace CLK.Promises
                 }
                 catch (Exception ex)
                 {
-                    thenReject(ex);
+                    thenPromise.InnerReject(ex);
                 }
             };
 
@@ -319,11 +289,11 @@ namespace CLK.Promises
                     onNotified(progress);
 
                     // Distribute
-                    thenNotify(progress);
+                    thenPromise.InnerNotify(progress);
                 }
                 catch (Exception ex)
                 {
-                    thenReject(ex);
+                    thenPromise.InnerReject(ex);
                 }
             };
 
@@ -337,16 +307,7 @@ namespace CLK.Promises
         private Promise<TNewResult> PushThen<TNewResult>(Func<TResult, Object> onResolved, Func<Exception, Object> onRejected, Action<Progress> onNotified)
         {
             // Promise
-            Action<TNewResult> thenResolve = null;
-            Action<Exception> thenReject = null;
-            Action<Progress> thenNotify = null;
-            var thenPromise = new Promise<TNewResult>(delegate (Action<TNewResult> resolve, Action<Exception> reject, Action<Progress> notify)
-            {
-                // Initialize
-                thenResolve = resolve;
-                thenReject = reject;
-                thenNotify = notify;
-            });
+            var thenPromise = new Promise<TNewResult>();
 
             // Handlers
             Action<TResult> resolveHandler = delegate (TResult result)
@@ -359,26 +320,26 @@ namespace CLK.Promises
                     // Distribute
                     if (resultObject == null)
                     {
-                        thenResolve(default(TNewResult));
+                        thenPromise.InnerResolve(default(TNewResult));
                     }
                     else if (resultObject is Promise)
                     {
                         ((Promise)resultObject).Then(
-                            delegate () { thenResolve(default(TNewResult)); },
-                            delegate (Exception thenError) { thenReject(thenError); },
-                            delegate (Progress thenProgress) { thenNotify(thenProgress); }
+                            delegate () { thenPromise.InnerResolve(default(TNewResult)); },
+                            delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
+                            delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
                         );
                     }
                     else if (resultObject is TNewResult)
                     {
-                        thenResolve((TNewResult)resultObject);
+                        thenPromise.InnerResolve((TNewResult)resultObject);
                     }
                     else if (resultObject is Promise<TNewResult>)
                     {
                         ((Promise<TNewResult>)resultObject).Then(
-                            delegate (TNewResult thenResult) { thenResolve(thenResult); },
-                            delegate (Exception thenError) { thenReject(thenError); },
-                            delegate (Progress thenProgress) { thenNotify(thenProgress); }
+                            delegate (TNewResult thenResult) { thenPromise.InnerResolve(thenResult); },
+                            delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
+                            delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
                         );
                     }
                     else
@@ -388,7 +349,7 @@ namespace CLK.Promises
                 }
                 catch (Exception ex)
                 {
-                    thenReject(ex);
+                    thenPromise.InnerReject(ex);
                 }
             };
 
@@ -402,26 +363,26 @@ namespace CLK.Promises
                     // Distribute
                     if (resultObject == null)
                     {
-                        thenResolve(default(TNewResult));
+                        thenPromise.InnerResolve(default(TNewResult));
                     }
                     else if (resultObject is Promise)
                     {
                         ((Promise)resultObject).Then(
-                            delegate () { thenResolve(default(TNewResult)); },
-                            delegate (Exception thenError) { thenReject(thenError); },
-                            delegate (Progress thenProgress) { thenNotify(thenProgress); }
+                            delegate () { thenPromise.InnerResolve(default(TNewResult)); },
+                            delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
+                            delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
                         );
                     }
                     else if (resultObject is TNewResult)
                     {
-                        thenResolve((TNewResult)resultObject);
+                        thenPromise.InnerResolve((TNewResult)resultObject);
                     }
                     else if (resultObject is Promise<TNewResult>)
                     {
                         ((Promise<TNewResult>)resultObject).Then(
-                            delegate (TNewResult thenResult) { thenResolve(thenResult); },
-                            delegate (Exception thenError) { thenReject(thenError); },
-                            delegate (Progress thenProgress) { thenNotify(thenProgress); }
+                            delegate (TNewResult thenResult) { thenPromise.InnerResolve(thenResult); },
+                            delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
+                            delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
                         );
                     }
                     else
@@ -431,7 +392,7 @@ namespace CLK.Promises
                 }
                 catch (Exception ex)
                 {
-                    thenReject(ex);
+                    thenPromise.InnerReject(ex);
                 }
             };
 
@@ -443,11 +404,11 @@ namespace CLK.Promises
                     onNotified(progress);
 
                     // Distribute
-                    thenNotify(progress);
+                    thenPromise.InnerNotify(progress);
                 }
                 catch (Exception ex)
                 {
-                    thenReject(ex);
+                    thenPromise.InnerReject(ex);
                 }
             };
 
