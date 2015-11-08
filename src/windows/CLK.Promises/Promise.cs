@@ -157,12 +157,9 @@ namespace CLK.Promises
             List<Action<Progress>> notifyHandlers = null;            
             lock (_syncRoot)
             {
-                if (_notifyHandlersSnapshot == null)
+                if (_notifyHandlersSnapshot == null && _notifyHandlers != null)
                 {
-                    if (_notifyHandlers != null)
-                    {
-                        _notifyHandlersSnapshot = _notifyHandlers.ToList();
-                    }
+                    _notifyHandlersSnapshot = _notifyHandlers.ToList();
                 }
                 notifyHandlers = _notifyHandlersSnapshot;
             }
