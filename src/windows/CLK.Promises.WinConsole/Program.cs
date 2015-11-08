@@ -12,7 +12,7 @@ namespace CLK.Promises.WinConsole
         {
             // Deferred
             var x = new Deferred();
-            x.Resolve();
+            
             x.Promise
 
                 // Result
@@ -62,14 +62,25 @@ namespace CLK.Promises.WinConsole
                 {
                     Console.WriteLine(error.Message);
                 })
-                
+
                 // End
+                .Progress(delegate (Progress progress)
+                {
+                    Console.WriteLine("Progress:" + progress.Description);
+                })
+                .Catch(delegate (Exception error)
+                {
+                    Console.WriteLine("Catch:" + error.Message);
+                })
                 .Then(delegate ()
                 {
                     Console.WriteLine("End");
-                })
+                })            
             ;
 
+            x.Notify(new Progress(1, 100, "1%"));
+            x.Notify(new Progress(100, 100, "100%"));
+            x.Resolve();
             Console.ReadLine();
         }
     }

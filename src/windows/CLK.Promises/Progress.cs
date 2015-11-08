@@ -9,19 +9,19 @@ namespace CLK.Promises
     public sealed class Progress
     {
         // Constructors
-        public Progress(int totalCount, int completedCount, string description = null)
+        public Progress(int completedCount, int totalCount, string description = null)
         {
-            // Default
-            this.TotalCount = totalCount;
+            // Default            
             this.CompletedCount = completedCount;
+            this.TotalCount = totalCount;
             this.Description = description;
         }
 
 
         // Properties
-        public int TotalCount { get; }
-
         public int CompletedCount { get; }
+
+        public int TotalCount { get; }       
 
         public string Description { get; }
     }

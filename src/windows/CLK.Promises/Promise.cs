@@ -254,7 +254,7 @@ namespace CLK.Promises
             {
                 try
                 {
-                    // Result
+                    // Execute
                     var resultObject = onResolved(result);
 
                     // Distribute
@@ -285,7 +285,7 @@ namespace CLK.Promises
             {
                 try
                 {
-                    // Result
+                    // Execute
                     var resultObject = onRejected(error);
 
                     // Distribute
@@ -316,7 +316,11 @@ namespace CLK.Promises
             {
                 try
                 {
+                    // Execute
                     onNotified(progress);
+
+                    // Distribute
+                    thenNotify(progress);
                 }
                 catch (Exception ex)
                 {
@@ -350,7 +354,7 @@ namespace CLK.Promises
             {
                 try
                 {
-                    // Result
+                    // Execute
                     var resultObject = onResolved(result);
 
                     // Distribute
@@ -393,7 +397,7 @@ namespace CLK.Promises
             {
                 try
                 {
-                    // Result
+                    // Execute
                     var resultObject = onRejected(error);
 
                     // Distribute
@@ -436,7 +440,11 @@ namespace CLK.Promises
             {
                 try
                 {
+                    // Execute
                     onNotified(progress);
+
+                    // Distribute
+                    thenNotify(progress);
                 }
                 catch (Exception ex)
                 {
@@ -482,7 +490,7 @@ namespace CLK.Promises
             {
                 _passNotified = delegate (Progress progress)
                 {
-
+                    
                 };
             }
             return _passNotified;
@@ -967,8 +975,8 @@ namespace CLK.Promises
         }
 
 
-        // Notify - Syntactic sugar
-        public Promise Notify(Action<Progress> onNotified)
+        // Progress - Syntactic sugar
+        public Promise Progress(Action<Progress> onNotified)
         {
             return this.Then(this.PassResolved(), this.PassRejected(), onNotified);
         }
