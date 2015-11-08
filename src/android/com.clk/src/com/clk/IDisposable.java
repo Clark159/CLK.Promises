@@ -3,6 +3,6 @@ package com.clk;
 
 public interface IDisposable {
 	
-	// Methods
+	// methods
 	void dispose();
 }

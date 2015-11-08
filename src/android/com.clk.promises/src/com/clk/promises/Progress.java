@@ -2,17 +2,17 @@ package com.clk.promises;
 
 public class Progress {
 	
-	// Constructors
+	// constructors
     public Progress(int completedCount, int totalCount, String description)
     {
-        // Default            
+        // default            
     	_completedCount = completedCount;
     	_totalCount = totalCount;
     	_description = description;
     }
 
 
-    // Properties
+    // properties
     private int _completedCount;
 	public final int getCompletedCount()
 	{

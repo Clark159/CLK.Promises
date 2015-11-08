@@ -6,77 +6,77 @@ import java.util.ArrayList;
 
 public final class FuncEvent {
 		
-	// Constructors
+	// constructors
 	private FuncEvent() { }
 		
 		
-	// Class
-	public static class Type0<TResult> extends FuncEventBase<FuncHandler.Type0<TResult>> {
+	// class
+	public static class Type0<TResult> extends FuncEventBase<Func.Type0<TResult>> {
 		
-		// Methods
+		// methods
 		public TResult raise()
 		{	
-			// EventHandlerList
-			ArrayList<FuncHandler.Type0<TResult>> eventHandlerList = this.getEventHandlerList();
+			// eventHandlerList
+			ArrayList<Func.Type0<TResult>> eventHandlerList = this.getEventHandlerList();
 			if(eventHandlerList == null) return null;
 			
-			// Raise	
+			// raise	
 			TResult result = null;
-			for (FuncHandler.Type0<TResult> eventHandler : eventHandlerList) 
+			for (Func.Type0<TResult> eventHandler : eventHandlerList) 
 			{
 				result = eventHandler.raise();
 			}
 			
-			// Return
+			// return
 			return result;
 		}	
 	}
 
-	public static class Type1<T1, TResult> extends FuncEventBase<FuncHandler.Type1<T1, TResult>> {
+	public static class Type1<T1, TResult> extends FuncEventBase<Func.Type1<T1, TResult>> {
 				
-		// Methods
+		// methods
 		public TResult raise(T1 t1)
 		{	
-			// EventHandlerList
-			ArrayList<FuncHandler.Type1<T1, TResult>> eventHandlerList = this.getEventHandlerList();
+			// eventHandlerList
+			ArrayList<Func.Type1<T1, TResult>> eventHandlerList = this.getEventHandlerList();
 			if(eventHandlerList == null) return null;
 			
-			// Raise	
+			// raise	
 			TResult result = null;
-			for (FuncHandler.Type1<T1, TResult> eventHandler : eventHandlerList) 
+			for (Func.Type1<T1, TResult> eventHandler : eventHandlerList) 
 			{
 				result = eventHandler.raise(t1);
 			}
 			
-			// Return
+			// return
 			return result;
 		}	
 	}
 	
-	public static class Type2<T1, T2, TResult> extends FuncEventBase<FuncHandler.Type2<T1, T2, TResult>> {
+	public static class Type2<T1, T2, TResult> extends FuncEventBase<Func.Type2<T1, T2, TResult>> {
 		
-		// Methods
+		// methods
 		public TResult raise(T1 t1, T2 t2)
 		{
-			// EventHandlerList
-			ArrayList<FuncHandler.Type2<T1, T2, TResult>> eventHandlerList = this.getEventHandlerList();
+			// eventHandlerList
+			ArrayList<Func.Type2<T1, T2, TResult>> eventHandlerList = this.getEventHandlerList();
 			if(eventHandlerList == null) return null;
 			
-			// Raise	
+			// raise	
 			TResult result = null;
-			for (FuncHandler.Type2<T1, T2, TResult> eventHandler : eventHandlerList) 
+			for (Func.Type2<T1, T2, TResult> eventHandler : eventHandlerList) 
 			{
 				result = eventHandler.raise(t1, t2);
 			}
 			
-			// Return
+			// return
 			return result;
 		}	
 	}
 	
 	public static class FuncEventBase<TEventHandler> {
 		
-		// Fields
+		// fields
 		private Object _syncRoot = new Object();
 		
 		private ArrayList<TEventHandler> _eventHandlerList = new ArrayList<TEventHandler>();
@@ -84,57 +84,57 @@ public final class FuncEvent {
 		private ArrayList<TEventHandler> _eventHandlerIterator = null;
 		
 		
-		// Methods
+		// methods
 		public void add(TEventHandler eventHandler)
 		{
-			// Contracts
+			// contracts
 			if (eventHandler == null) throw new IllegalArgumentException();
 
-			// Sync
+			// sync
 			synchronized(_syncRoot) 
 			{
-				// Iterator
+				// iterator
 				_eventHandlerIterator = null;			
 				
-				// Add
+				// add
 				_eventHandlerList.add(eventHandler);
 			}
 		}
 		
 		public void remove(TEventHandler eventHandler)
 		{
-			// Contracts
+			// contracts
 			if (eventHandler == null) throw new IllegalArgumentException();
 					
-			// Sync
+			// sync
 			synchronized(_syncRoot) 
 			{
-				// Iterator
+				// iterator
 				_eventHandlerIterator = null;
 				
-				// Remove
+				// remove
 				_eventHandlerList.remove(eventHandler);
 			}
 		}
 		
 		protected ArrayList<TEventHandler> getEventHandlerList()
 		{
-			// Result
+			// result
 			ArrayList<TEventHandler> eventHandlerIterator = null;
 			
-			// Sync
+			// sync
 			synchronized(_syncRoot) 
 			{
-				// Require			
+				// require			
 				if(_eventHandlerList.isEmpty() == true) return null;
 				
-				// Iterator
+				// iterator
 				if(_eventHandlerIterator == null)
 				{
-					// Create
+					// create
 					_eventHandlerIterator = new ArrayList<TEventHandler>();
 					
-					// Copy
+					// copy
 					for (TEventHandler eventHandler : _eventHandlerList) 
 					{
 						_eventHandlerIterator.add(eventHandler);
@@ -143,7 +143,7 @@ public final class FuncEvent {
 				eventHandlerIterator = _eventHandlerIterator;
 			}
 			
-			// Return
+			// return
 			return eventHandlerIterator;
 		}		
 	}	

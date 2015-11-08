@@ -1,13 +1,13 @@
 package com.clk;
 
 
-public final class FuncHandler {
+public final class Func {
 
-	// Constructors
-	private FuncHandler() { }
+	// constructors
+	private Func() { }
 	
 	
-	// Interface
+	// interface
 	public static interface Type0<TResult> { TResult raise(); }
 	
 	public static interface Type1<T1, TResult> { TResult raise(T1 t1); }

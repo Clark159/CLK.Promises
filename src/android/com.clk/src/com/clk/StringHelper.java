@@ -3,11 +3,11 @@ package com.clk;
 
 public final class StringHelper {
 
-	// Constructors
+	// constructors
 	private StringHelper() { }
 		
 		
-	// Methods
+	// methods
 	public static boolean isNullOrEmpty(String value)
 	{
 		// Require

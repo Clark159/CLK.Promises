@@ -1,10 +1,10 @@
 package com.clk;
 
 
-public final class ActionHandler {
+public final class Action {
 
 	// constructors
-	private ActionHandler() { }
+	private Action() { }
 	
 	
 	// interface
