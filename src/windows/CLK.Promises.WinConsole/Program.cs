@@ -11,8 +11,8 @@ namespace CLK.Promises.WinConsole
         static void Main(string[] args)
         {
             // Deferred
-            var x = new Deferred();
-            
+            var x = new Deferred();            
+
             x.Promise
 
                 // Result
@@ -78,7 +78,8 @@ namespace CLK.Promises.WinConsole
                 })            
             ;
 
-            x.Notify(new Progress(1, 100, "1%"));
+            x.Notify(new Progress(0, 100, "0%"));
+            x.Notify(new Progress(50, 100, "50%"));
             x.Notify(new Progress(100, 100, "100%"));
             x.Resolve();
             Console.ReadLine();

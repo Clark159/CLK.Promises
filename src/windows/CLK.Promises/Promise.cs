@@ -51,11 +51,11 @@ namespace CLK.Promises
         private Exception _error = null;
 
 
-        private List<Action<TResult>> _resolveHandlers = new List<Action<TResult>>();
+        private List<Action<TResult>> _resolveHandlers = null;
 
-        private List<Action<Exception>> _rejectHandlers = new List<Action<Exception>>();
+        private List<Action<Exception>> _rejectHandlers = null;
 
-        private List<Action<Progress>> _notifyHandlers = new List<Action<Progress>>();
+        private List<Action<Progress>> _notifyHandlers = null;
 
         private List<Action<Progress>> _notifyHandlersSnapshot = null;
 
@@ -89,39 +89,6 @@ namespace CLK.Promises
 
 
         // Methods 
-        private IEnumerable<Action<TResult>> GetResolveHandlers()
-        {
-            // Return
-            return _resolveHandlers;
-        }
-
-        private IEnumerable<Action<Exception>> GetRejectHandlers()
-        {
-            // Return
-            return _rejectHandlers;
-        }
-
-        private IEnumerable<Action<Progress>> GetNotifyHandlers()
-        {
-            // Variables
-            IEnumerable<Action<Progress>> notifyHandlers = null;
-
-            // Sync
-            lock (_syncRoot)
-            {
-                // NotifyHandlers
-                if (_notifyHandlersSnapshot == null)
-                {
-                    _notifyHandlersSnapshot = _notifyHandlers.ToList();
-                }
-                notifyHandlers = _notifyHandlersSnapshot;
-            }
-
-            // Return
-            return notifyHandlers;
-        }
-
-
         private void DoResolve(TResult result = default(TResult))
         {
             // Sync
@@ -136,8 +103,12 @@ namespace CLK.Promises
                 _error = null;
             }
 
+            // Handlers
+            var resolveHandlers = _resolveHandlers;
+            if (resolveHandlers == null) return;
+
             // Resolve
-            foreach (var resolveHandler in this.GetResolveHandlers())
+            foreach (var resolveHandler in resolveHandlers)
             {
                 resolveHandler(result);
             }
@@ -163,8 +134,12 @@ namespace CLK.Promises
                 _error = error;
             }
 
-            // Reject
-            foreach (var rejectHandler in this.GetRejectHandlers())
+            // Handlers
+            var rejectHandlers = _rejectHandlers;
+            if (rejectHandlers == null) return;
+
+            // Resolve
+            foreach (var rejectHandler in rejectHandlers)
             {
                 rejectHandler(error);
             }
@@ -178,8 +153,23 @@ namespace CLK.Promises
 
             #endregion
 
+            // Handlers
+            List<Action<Progress>> notifyHandlers = null;            
+            lock (_syncRoot)
+            {
+                if (_notifyHandlersSnapshot == null)
+                {
+                    if (_notifyHandlers != null)
+                    {
+                        _notifyHandlersSnapshot = _notifyHandlers.ToList();
+                    }
+                }
+                notifyHandlers = _notifyHandlersSnapshot;
+            }
+            if (notifyHandlers == null) return;
+
             // Notify
-            foreach (var notifyHandler in this.GetNotifyHandlers())
+            foreach (var notifyHandler in notifyHandlers)
             {
                 notifyHandler(progress);
             }
@@ -202,16 +192,28 @@ namespace CLK.Promises
                 // ResolveHandler
                 if (_state == PromiseState.Pending)
                 {
+                    if(_resolveHandlers==null)
+                    {
+                        _resolveHandlers = new List<Action<TResult>>();
+                    }
                     _resolveHandlers.Add(resolveHandler);
                 }
 
                 // RejectHandler
                 if (_state == PromiseState.Pending)
                 {
+                    if (_rejectHandlers == null)
+                    {
+                        _rejectHandlers = new List<Action<Exception>>();
+                    }
                     _rejectHandlers.Add(rejectHandler);
                 }
 
                 // NotifyHandler
+                if (_notifyHandlers == null)
+                {
+                    _notifyHandlers = new List<Action<Promises.Progress>>();
+                }
                 _notifyHandlers.Add(notifyHandler);
                 _notifyHandlersSnapshot = null;
 
