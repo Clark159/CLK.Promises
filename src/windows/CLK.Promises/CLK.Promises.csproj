@@ -42,7 +42,6 @@
   <ItemGroup>
     <Compile Include="Progress.cs" />
     <Compile Include="Promise.cs" />
-    <Compile Include="PromiseState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Deferred.cs" />
   </ItemGroup>

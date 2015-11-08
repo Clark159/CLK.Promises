@@ -37,6 +37,23 @@ namespace CLK.Promises
 
     public class Promise<TResult>
     {
+        // Enumerations
+        private enum PromiseState
+        {
+            Pending,  // unresolved  
+            Resolved, // has-resolution
+            Rejected, // has-rejection
+        };
+
+        private enum ResultType
+        {
+            NullResult,
+            NullResultPromise,
+            NewResult,
+            NewResultPromise,
+        }
+
+
         // Fields
         private readonly object _syncRoot = new object();
 
@@ -213,7 +230,9 @@ namespace CLK.Promises
             }
         }
 
-        private Promise PushThen(Func<TResult, Object> onResolved, Func<Exception, Object> onRejected, Action<Progress> onNotified)
+        private Promise PushThen(Func<TResult, Object> onResolved, ResultType onResolvedResultType, 
+                                 Func<Exception, Object> onRejected, ResultType onRejectedResultType, 
+                                 Action<Progress> onNotified)
         {
             // Promise
             var thenPromise = new Promise();
@@ -227,21 +246,22 @@ namespace CLK.Promises
                     var resultObject = onResolved(result);
 
                     // Distribute
-                    if (resultObject == null)
+                    switch (onResolvedResultType)
                     {
-                        thenPromise.InnerResolve();
-                    }
-                    else if (resultObject is Promise)
-                    {
-                        ((Promise)resultObject).Then(
-                            delegate () { thenPromise.InnerResolve(); },
-                            delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
-                            delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
-                        );
-                    }
-                    else
-                    {
-                        throw new Exception("Invalid Result");
+                        case ResultType.NullResult:
+                            thenPromise.InnerResolve();
+                            break;
+
+                        case ResultType.NullResultPromise:
+                            ((Promise)resultObject).Then(
+                                delegate () { thenPromise.InnerResolve(); },
+                                delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
+                                delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
+                            );
+                            break;
+
+                        default:
+                            throw new Exception("Invalid Result");
                     }
                 }
                 catch (Exception ex)
@@ -258,21 +278,22 @@ namespace CLK.Promises
                     var resultObject = onRejected(error);
 
                     // Distribute
-                    if (resultObject == null)
+                    switch (onRejectedResultType)
                     {
-                        thenPromise.InnerResolve();
-                    }
-                    else if (resultObject is Promise)
-                    {
-                        ((Promise)resultObject).Then(
-                            delegate () { thenPromise.InnerResolve(); },
-                            delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
-                            delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
-                        );
-                    }
-                    else
-                    {
-                        throw new Exception("Invalid Result");
+                        case ResultType.NullResult:
+                            thenPromise.InnerResolve();
+                            break;
+
+                        case ResultType.NullResultPromise:
+                            ((Promise)resultObject).Then(
+                                delegate () { thenPromise.InnerResolve(); },
+                                delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
+                                delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
+                            );
+                            break;
+
+                        default:
+                            throw new Exception("Invalid Result");
                     }
                 }
                 catch (Exception ex)
@@ -304,7 +325,9 @@ namespace CLK.Promises
             return thenPromise;
         }
 
-        private Promise<TNewResult> PushThen<TNewResult>(Func<TResult, Object> onResolved, Func<Exception, Object> onRejected, Action<Progress> onNotified)
+        private Promise<TNewResult> PushThen<TNewResult>(Func<TResult, Object> onResolved, ResultType onResolvedResultType,
+                                                         Func<Exception, Object> onRejected, ResultType onRejectedResultType,
+                                                         Action<Progress> onNotified)
         {
             // Promise
             var thenPromise = new Promise<TNewResult>();
@@ -318,33 +341,34 @@ namespace CLK.Promises
                     var resultObject = onResolved(result);
 
                     // Distribute
-                    if (resultObject == null)
+                    switch (onResolvedResultType)
                     {
-                        thenPromise.InnerResolve(default(TNewResult));
-                    }
-                    else if (resultObject is Promise)
-                    {
-                        ((Promise)resultObject).Then(
-                            delegate () { thenPromise.InnerResolve(default(TNewResult)); },
-                            delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
-                            delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
-                        );
-                    }
-                    else if (resultObject is TNewResult)
-                    {
-                        thenPromise.InnerResolve((TNewResult)resultObject);
-                    }
-                    else if (resultObject is Promise<TNewResult>)
-                    {
-                        ((Promise<TNewResult>)resultObject).Then(
-                            delegate (TNewResult thenResult) { thenPromise.InnerResolve(thenResult); },
-                            delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
-                            delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
-                        );
-                    }
-                    else
-                    {
-                        throw new Exception("Invalid Result");
+                        case ResultType.NullResult:
+                            thenPromise.InnerResolve(default(TNewResult));
+                            break;
+
+                        case ResultType.NullResultPromise:
+                            ((Promise)resultObject).Then(
+                                delegate () { thenPromise.InnerResolve(default(TNewResult)); },
+                                delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
+                                delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
+                            );
+                            break;
+
+                        case ResultType.NewResult:
+                            thenPromise.InnerResolve((TNewResult)resultObject);
+                            break;
+
+                        case ResultType.NewResultPromise:
+                            ((Promise<TNewResult>)resultObject).Then(
+                                delegate (TNewResult thenResult) { thenPromise.InnerResolve(thenResult); },
+                                delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
+                                delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
+                            );
+                            break;
+
+                        default:
+                            throw new Exception("Invalid Result");
                     }
                 }
                 catch (Exception ex)
@@ -361,33 +385,34 @@ namespace CLK.Promises
                     var resultObject = onRejected(error);
 
                     // Distribute
-                    if (resultObject == null)
+                    switch (onRejectedResultType)
                     {
-                        thenPromise.InnerResolve(default(TNewResult));
-                    }
-                    else if (resultObject is Promise)
-                    {
-                        ((Promise)resultObject).Then(
-                            delegate () { thenPromise.InnerResolve(default(TNewResult)); },
-                            delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
-                            delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
-                        );
-                    }
-                    else if (resultObject is TNewResult)
-                    {
-                        thenPromise.InnerResolve((TNewResult)resultObject);
-                    }
-                    else if (resultObject is Promise<TNewResult>)
-                    {
-                        ((Promise<TNewResult>)resultObject).Then(
-                            delegate (TNewResult thenResult) { thenPromise.InnerResolve(thenResult); },
-                            delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
-                            delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
-                        );
-                    }
-                    else
-                    {
-                        throw new Exception("Invalid Result");
+                        case ResultType.NullResult:
+                            thenPromise.InnerResolve(default(TNewResult));
+                            break;
+
+                        case ResultType.NullResultPromise:
+                            ((Promise)resultObject).Then(
+                                delegate () { thenPromise.InnerResolve(default(TNewResult)); },
+                                delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
+                                delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
+                            );
+                            break;
+
+                        case ResultType.NewResult:
+                            thenPromise.InnerResolve((TNewResult)resultObject);
+                            break;
+
+                        case ResultType.NewResultPromise:
+                            ((Promise<TNewResult>)resultObject).Then(
+                                delegate (TNewResult thenResult) { thenPromise.InnerResolve(thenResult); },
+                                delegate (Exception thenError) { thenPromise.InnerReject(thenError); },
+                                delegate (Progress thenProgress) { thenPromise.InnerNotify(thenProgress); }
+                            );
+                            break;
+
+                        default:
+                            throw new Exception("Invalid Result");
                     }
                 }
                 catch (Exception ex)
@@ -464,8 +489,8 @@ namespace CLK.Promises
         public Promise Then(Action onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen(
-                delegate (TResult result) { onResolved(); return null; },
-                delegate (Exception error) { onRejected(error); return null; },
+                delegate (TResult result) { onResolved(); return null; }, ResultType.NullResult,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.NullResult,
                 onNotified
             );
         }
@@ -473,8 +498,8 @@ namespace CLK.Promises
         public Promise Then(Action onResolved, Func<Exception, Promise> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen(
-                delegate (TResult result) { onResolved(); return null; },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { onResolved(); return null; }, ResultType.NullResult,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NullResultPromise,
                 onNotified
             );
         }
@@ -483,8 +508,8 @@ namespace CLK.Promises
         public Promise Then(Func<Promise> onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen(
-                delegate (TResult result) { return onResolved(); },
-                delegate (Exception error) { onRejected(error); return null; },
+                delegate (TResult result) { return onResolved(); }, ResultType.NullResultPromise,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.NullResult,
                 onNotified
             );
         }
@@ -492,8 +517,8 @@ namespace CLK.Promises
         public Promise Then(Func<Promise> onResolved, Func<Exception, Promise> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen(
-                delegate (TResult result) { return onResolved(); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(); }, ResultType.NullResultPromise,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NullResultPromise,
                 onNotified
             );
         }
@@ -503,8 +528,8 @@ namespace CLK.Promises
         public Promise Then(Action<TResult> onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen(
-                delegate (TResult result) { onResolved(result); return null; },
-                delegate (Exception error) { onRejected(error); return null; },
+                delegate (TResult result) { onResolved(result); return null; }, ResultType.NullResult,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.NullResult,
                 onNotified
             );
         }
@@ -512,8 +537,8 @@ namespace CLK.Promises
         public Promise Then(Action<TResult> onResolved, Func<Exception, Promise> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen(
-                delegate (TResult result) { onResolved(result); return null; },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { onResolved(result); return null; }, ResultType.NullResult,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NullResultPromise,
                 onNotified
             );
         }
@@ -522,8 +547,8 @@ namespace CLK.Promises
         public Promise Then(Func<TResult, Promise> onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen(
-                delegate (TResult result) { return onResolved(result); },
-                delegate (Exception error) { onRejected(error); return null; },
+                delegate (TResult result) { return onResolved(result); }, ResultType.NullResultPromise,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.NullResult,
                 onNotified
             );
         }
@@ -531,8 +556,8 @@ namespace CLK.Promises
         public Promise Then(Func<TResult, Promise> onResolved, Func<Exception, Promise> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen(
-                delegate (TResult result) { return onResolved(result); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(result); }, ResultType.NullResultPromise,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NullResultPromise,
                 onNotified
             );
         }
@@ -542,8 +567,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Action onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { onResolved(); return null; },
-                delegate (Exception error) { onRejected(error); return null; },
+                delegate (TResult result) { onResolved(); return null; }, ResultType.NullResult,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.NullResult,
                 onNotified
             );
         }
@@ -551,8 +576,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Action onResolved, Func<Exception, Promise> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { onResolved(); return null; },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { onResolved(); return null; }, ResultType.NullResult,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NullResultPromise,
                 onNotified
             );
         }
@@ -560,8 +585,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Action onResolved, Func<Exception, TNewResult> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { onResolved(); return null; },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { onResolved(); return null; }, ResultType.NullResult,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResult,
                 onNotified
             );
         }
@@ -569,8 +594,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Action onResolved, Func<Exception, Promise<TNewResult>> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { onResolved(); return null; },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { onResolved(); return null; }, ResultType.NullResult,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResultPromise,
                 onNotified
             );
         }
@@ -579,8 +604,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<Promise> onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(); },
-                delegate (Exception error) { onRejected(error); return null; },
+                delegate (TResult result) { return onResolved(); }, ResultType.NullResultPromise,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.NullResult,
                 onNotified
             );
         }
@@ -588,8 +613,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<Promise> onResolved, Func<Exception, Promise> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(); }, ResultType.NullResultPromise,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NullResultPromise,
                 onNotified
             );
         }
@@ -597,8 +622,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<Promise> onResolved, Func<Exception, TNewResult> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(); }, ResultType.NullResultPromise,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResult,
                 onNotified
             );
         }
@@ -606,8 +631,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<Promise> onResolved, Func<Exception, Promise<TNewResult>> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(); }, ResultType.NullResultPromise,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResultPromise,
                 onNotified
             );
         }
@@ -616,8 +641,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TNewResult> onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(); },
-                delegate (Exception error) { onRejected(error); return null; },
+                delegate (TResult result) { return onResolved(); }, ResultType.NewResult,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.NullResult,
                 onNotified
             );
         }
@@ -625,8 +650,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TNewResult> onResolved, Func<Exception, Promise> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(); }, ResultType.NewResult,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NullResultPromise,
                 onNotified
             );
         }
@@ -634,8 +659,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TNewResult> onResolved, Func<Exception, TNewResult> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(); }, ResultType.NewResult,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResult,
                 onNotified
             );
         }
@@ -643,8 +668,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TNewResult> onResolved, Func<Exception, Promise<TNewResult>> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(); }, ResultType.NewResult,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResultPromise,
                 onNotified
             );
         }
@@ -653,8 +678,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<Promise<TNewResult>> onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(); },
-                delegate (Exception error) { onRejected(error); return null; },
+                delegate (TResult result) { return onResolved(); }, ResultType.NewResultPromise,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.NullResult,
                 onNotified
             );
         }
@@ -662,8 +687,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<Promise<TNewResult>> onResolved, Func<Exception, Promise> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(); }, ResultType.NewResultPromise,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NullResultPromise,
                 onNotified
             );
         }
@@ -671,8 +696,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<Promise<TNewResult>> onResolved, Func<Exception, TNewResult> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(); }, ResultType.NewResultPromise,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResult,
                 onNotified
             );
         }
@@ -680,8 +705,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<Promise<TNewResult>> onResolved, Func<Exception, Promise<TNewResult>> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(); }, ResultType.NewResultPromise,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResultPromise,
                 onNotified
             );
         }
@@ -691,8 +716,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Action<TResult> onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { onResolved(result); return null; },
-                delegate (Exception error) { onRejected(error); return null; },
+                delegate (TResult result) { onResolved(result); return null; }, ResultType.NullResult,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.NullResult,
                 onNotified
             );
         }
@@ -700,8 +725,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Action<TResult> onResolved, Func<Exception, Promise> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { onResolved(result); return null; },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { onResolved(result); return null; }, ResultType.NullResult,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NullResultPromise,
                 onNotified
             );
         }
@@ -709,8 +734,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Action<TResult> onResolved, Func<Exception, TNewResult> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { onResolved(result); return null; },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { onResolved(result); return null; }, ResultType.NullResult,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResult,
                 onNotified
             );
         }
@@ -718,8 +743,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Action<TResult> onResolved, Func<Exception, Promise<TNewResult>> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { onResolved(result); return null; },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { onResolved(result); return null; }, ResultType.NullResult,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResultPromise,
                 onNotified
             );
         }
@@ -728,8 +753,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TResult, Promise> onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(result); },
-                delegate (Exception error) { onRejected(error); return null; },
+                delegate (TResult result) { return onResolved(result); }, ResultType.NullResultPromise,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.NullResult,
                 onNotified
             );
         }
@@ -737,8 +762,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TResult, Promise> onResolved, Func<Exception, Promise> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(result); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(result); }, ResultType.NullResultPromise,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NullResultPromise,
                 onNotified
             );
         }
@@ -746,8 +771,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TResult, Promise> onResolved, Func<Exception, TNewResult> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(result); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(result); }, ResultType.NullResultPromise,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResult,
                 onNotified
             );
         }
@@ -755,8 +780,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TResult, Promise> onResolved, Func<Exception, Promise<TNewResult>> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(result); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(result); }, ResultType.NullResultPromise,
+                delegate (Exception error) { return onRejected(error); },  ResultType.NewResultPromise,
                 onNotified
             );
         }
@@ -765,8 +790,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TResult, TNewResult> onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(result); },
-                delegate (Exception error) { onRejected(error); return null; },
+                delegate (TResult result) { return onResolved(result); }, ResultType.NewResult,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.NullResult,
                 onNotified
             );
         }
@@ -774,8 +799,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TResult, TNewResult> onResolved, Func<Exception, Promise> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(result); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(result); }, ResultType.NewResult,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NullResultPromise,
                 onNotified
             );
         }
@@ -783,8 +808,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TResult, TNewResult> onResolved, Func<Exception, TNewResult> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(result); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(result); }, ResultType.NewResult,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResult,
                 onNotified
             );
         }
@@ -792,8 +817,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TResult, TNewResult> onResolved, Func<Exception, Promise<TNewResult>> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(result); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(result); }, ResultType.NewResult,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResultPromise,
                 onNotified
             );
         }
@@ -802,8 +827,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TResult, Promise<TNewResult>> onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(result); },
-                delegate (Exception error) { onRejected(error); return null; },
+                delegate (TResult result) { return onResolved(result); }, ResultType.NewResultPromise,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.NullResult,
                 onNotified
             );
         }
@@ -811,8 +836,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TResult, Promise<TNewResult>> onResolved, Func<Exception, Promise> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(result); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(result); }, ResultType.NewResultPromise,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NullResultPromise,
                 onNotified
             );
         }
@@ -820,8 +845,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TResult, Promise<TNewResult>> onResolved, Func<Exception, TNewResult> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(result); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(result); }, ResultType.NewResultPromise,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResult,
                 onNotified
             );
         }
@@ -829,8 +854,8 @@ namespace CLK.Promises
         public Promise<TNewResult> Then<TNewResult>(Func<TResult, Promise<TNewResult>> onResolved, Func<Exception, Promise<TNewResult>> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen<TNewResult>(
-                delegate (TResult result) { return onResolved(result); },
-                delegate (Exception error) { return onRejected(error); },
+                delegate (TResult result) { return onResolved(result); }, ResultType.NewResultPromise,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewResultPromise,
                 onNotified
             );
         }
