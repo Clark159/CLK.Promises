@@ -392,7 +392,7 @@ public class EmptyPromise extends Promise<Object> {
 
     
     // progress
-    public EmptyPromise Progress(Action.Type1<Progress> onNotified)
+    public EmptyPromise progress(Action.Type1<Progress> onNotified)
     {
     	return this.pushThen(
     		this.passResolved(), ResultType.Empty,

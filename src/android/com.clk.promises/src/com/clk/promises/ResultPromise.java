@@ -390,7 +390,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
 
     
     // progress
-    public EmptyPromise Progress(Action.Type1<Progress> onNotified)
+    public EmptyPromise progress(Action.Type1<Progress> onNotified)
     {
     	return this.pushThen(
     		this.passResolved(), ResultType.Empty,

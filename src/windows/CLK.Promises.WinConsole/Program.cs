@@ -10,6 +10,15 @@ namespace CLK.Promises.WinConsole
     {
         static void Main(string[] args)
         {
+            // Tests
+            PromiseTests();
+
+            // End
+            Console.ReadLine();
+        }
+
+        static void PromiseTests()
+        {
             // Promise
             var promise = new EmptyPromise();
 
@@ -116,9 +125,6 @@ namespace CLK.Promises.WinConsole
             promise.Notify(new Progress(50, 100, "50%"));
             promise.Notify(new Progress(100, 100, "100%"));
             promise.Resolve();
-
-            // End
-            Console.ReadLine();
         }
     }
 }
