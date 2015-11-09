@@ -29,8 +29,6 @@ public class MainActivity extends Activity {
     	// Progress
         Progress progress = new Progress(0,100,"Clark");
         
-		Promise promise = new Promise();
-        promise.innerResolve(null);
         		
 		// Alert
  		AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);

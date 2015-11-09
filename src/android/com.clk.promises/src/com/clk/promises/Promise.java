@@ -98,8 +98,7 @@ public class Promise<TResult> {
             rejectHandler.raise(_error);
         }
     }    
-        
-    
+            
     protected void resolveBase(TResult result)
     {
         // sync

@@ -3,10 +3,9 @@ package com.clk.promises;
 
 import com.clk.Action;
 import com.clk.Func;
-import com.clk.promises.Promise.ResultType;
 
 
-public class EmptyPromise extends Promise<Object>{
+public class EmptyPromise extends Promise<Object> {
     	
 	// fields
 	private Func.Type0<Object> _passResolved = null;
@@ -119,7 +118,7 @@ public class EmptyPromise extends Promise<Object>{
     	
     	// return
     	return thenPromise;
-	};	
+	}
 	
 	private <TNewResult> ResultPromise<TNewResult> pushThenNew(
     		final Func.Type0<Object> onResolved, final ResultType onResolvedResultType,
@@ -249,7 +248,7 @@ public class EmptyPromise extends Promise<Object>{
                 
     	// return
         return thenPromise;
-	};	
+	}
 	
 	
 	private Func.Type0<Object> passResolved()
