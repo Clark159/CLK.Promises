@@ -3,18 +3,18 @@ package com.clk.promises;
 import com.clk.Action;
 import com.clk.Func;
 
-public class Promise extends PromiseBase<Object>{
-    	
+public class ResultPromise<TResult> extends PromiseBase<TResult>{
+	
     // methods 
-    public void resolve()
+    public void resolve(TResult result)
     {
     	// resolve
-    	this.resolveBase(null);
+    	this.resolveBase(result);
     }
     
-	
+    
     public Promise thenEmpty(
-    		final Action.Type0 onResolved, 
+    		final Action.Type1<TResult> onResolved, 
     		final Action.Type1<Exception> onRejected, 
 			final Action.Type1<Progress> onNotified)
 	{ 
@@ -22,13 +22,13 @@ public class Promise extends PromiseBase<Object>{
     	final Promise thenPromise = new Promise();
     	
     	// resolveHandler
-        Action.Type1<Object> resolveHandler = new Action.Type1<Object> ()
+        Action.Type1<TResult> resolveHandler = new Action.Type1<TResult> ()
         {        	
-			@Override public void raise(Object result) {
+			@Override public void raise(TResult result) {
 				try
 	            {
 	                // execute
-	                onResolved.raise();
+	                onResolved.raise(result);
 
 	                // distribute
 	                thenPromise.resolve();
@@ -85,22 +85,22 @@ public class Promise extends PromiseBase<Object>{
     	return thenPromise;
 	};	
 	
-	public <TResolvedResult, TRejectedResult> Promise thenEmpty(
-    		final Func.Type0<TResolvedResult> onResolved, final ResultType onResolvedResultType,
+    public <TResolvedResult, TRejectedResult> Promise thenEmpty(
+    		final Func.Type1<TResult, TResolvedResult> onResolved, final ResultType onResolvedResultType,
     		final Func.Type1<Exception, TRejectedResult> onRejected, final ResultType onRejectedResultType, 
 			final Action.Type1<Progress> onNotified)
 	{ 
 		// promise
     	final Promise thenPromise = new Promise();
-    	
+    	    	
     	// resolveHandler
-        Action.Type1<Object> resolveHandler = new Action.Type1<Object> ()
+        Action.Type1<TResult> resolveHandler = new Action.Type1<TResult> ()
         {        	
-			@Override public void raise(Object result) {
+			@Override public void raise(TResult result) {
 				try
 	            {
 	                // execute
-	                Object resultObject = onResolved.raise();
+	                Object resultObject = onResolved.raise(result);
 
 	                // distribute
 	                switch (onResolvedResultType)
@@ -183,29 +183,29 @@ public class Promise extends PromiseBase<Object>{
         };
     	
         // push
-        this.push(resolveHandler, rejectHandler, notifiedHandler);   
+        this.push(resolveHandler, rejectHandler, notifiedHandler);    	
     	
     	// return
     	return thenPromise;
 	};	
 	
 	public <TNewResult, TResolvedResult, TRejectedResult> ResultPromise<TNewResult> thenResult(
-    		final Func.Type0<TResolvedResult> onResolved, final ResultType onResolvedResultType,
+    		final Func.Type1<TResult, TResolvedResult> onResolved, final ResultType onResolvedResultType,
     		final Func.Type1<Exception, TRejectedResult> onRejected, final ResultType onRejectedResultType, 
 			final Action.Type1<Progress> onNotified)
 	{
 		// promise
     	final ResultPromise<TNewResult> thenPromise = new ResultPromise<TNewResult>();
-    	    
+    	    	
     	// resolveHandler
-        Action.Type1<Object> resolveHandler = new Action.Type1<Object> ()
+        Action.Type1<TResult> resolveHandler = new Action.Type1<TResult> ()
         {        	
 			@SuppressWarnings("unchecked")
-			@Override public void raise(Object result) {
+			@Override public void raise(TResult result) {
 				try
 	            {
 	                // execute
-	                Object resultObject = onResolved.raise();
+	                Object resultObject = onResolved.raise(result);
 
 	                // distribute
 	                switch (onResolvedResultType)
@@ -314,7 +314,7 @@ public class Promise extends PromiseBase<Object>{
     	
         // push
         this.push(resolveHandler, rejectHandler, notifiedHandler);    	
-                
+        
     	// return
         return thenPromise;
 	};	
