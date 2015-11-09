@@ -2,7 +2,6 @@ package com.clk.promises;
 
 import com.clk.Action;
 import com.clk.Func;
-import com.clk.promises.Promise.ResultType;
 
 public class ResultPromise<TResult> extends Promise<TResult> {
 	
@@ -93,8 +92,8 @@ public class ResultPromise<TResult> extends Promise<TResult> {
          	}
          };
          
-         // notifiedHandler
-         Action.Type1<Progress> notifiedHandler = new Action.Type1<Progress>() 
+         // notifyHandler
+         Action.Type1<Progress> notifyHandler = new Action.Type1<Progress>() 
          {
          	@Override public void raise(Progress progress) {
  	            try
@@ -113,7 +112,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
          };
      	
          // push
-         this.push(resolveHandler, rejectHandler, notifiedHandler);   
+         this.push(resolveHandler, rejectHandler, notifyHandler);   
      	
      	// return
      	return thenPromise;
@@ -223,8 +222,8 @@ public class ResultPromise<TResult> extends Promise<TResult> {
         	}
         };
 
-        // notifiedHandler
-        Action.Type1<Progress> notifiedHandler = new Action.Type1<Progress>() 
+        // notifyHandler
+        Action.Type1<Progress> notifyHandler = new Action.Type1<Progress>() 
         {
         	@Override public void raise(Progress progress) {
 	            try
@@ -243,7 +242,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
         };
     	
         // push
-        this.push(resolveHandler, rejectHandler, notifiedHandler);    	
+        this.push(resolveHandler, rejectHandler, notifyHandler);    	
                 
     	// return
         return thenPromise;

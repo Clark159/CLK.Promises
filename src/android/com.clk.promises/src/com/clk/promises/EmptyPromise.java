@@ -94,8 +94,8 @@ public class EmptyPromise extends Promise<Object> {
         	}
         };
         
-        // notifiedHandler
-        Action.Type1<Progress> notifiedHandler = new Action.Type1<Progress>() 
+        // notifyHandler
+        Action.Type1<Progress> notifyHandler = new Action.Type1<Progress>() 
         {
         	@Override public void raise(Progress progress) {
 	            try
@@ -114,7 +114,7 @@ public class EmptyPromise extends Promise<Object> {
         };
     	
         // push
-        this.push(resolveHandler, rejectHandler, notifiedHandler);   
+        this.push(resolveHandler, rejectHandler, notifyHandler);   
     	
     	// return
     	return thenPromise;
@@ -224,8 +224,8 @@ public class EmptyPromise extends Promise<Object> {
         	}
         };
 
-        // notifiedHandler
-        Action.Type1<Progress> notifiedHandler = new Action.Type1<Progress>() 
+        // notifyHandler
+        Action.Type1<Progress> notifyHandler = new Action.Type1<Progress>() 
         {
         	@Override public void raise(Progress progress) {
 	            try
@@ -244,7 +244,7 @@ public class EmptyPromise extends Promise<Object> {
         };
     	
         // push
-        this.push(resolveHandler, rejectHandler, notifiedHandler);    	
+        this.push(resolveHandler, rejectHandler, notifyHandler);    	
                 
     	// return
         return thenPromise;

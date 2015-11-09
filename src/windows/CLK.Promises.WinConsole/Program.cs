@@ -10,78 +10,114 @@ namespace CLK.Promises.WinConsole
     {
         static void Main(string[] args)
         {
-            // Deferred
-            var x = new Deferred();            
+            // Promise
+            var promise = new EmptyPromise();
 
-            x.Promise
+            promise
 
-                // Result
-                .Then<string>(delegate ()
+                // ========== Then ==========
+                .Then(delegate ()
                 {
-                    return "AAA";
+                    Console.WriteLine("AAA");
+                })
+
+                // ThenPromise - Resolve
+                .ThenPromise(delegate ()
+                {
+                    var newPromise = new EmptyPromise();
+                    newPromise.Resolve();
+                    return newPromise;
+                })
+                .Then(delegate ()
+                {
+                    Console.WriteLine("BBB");
+                })
+
+                // ThenPromise - Reject
+                .ThenPromise(delegate ()
+                {
+                    var newPromise = new EmptyPromise();
+                    newPromise.Reject(new Exception("CCC"));
+                    return newPromise;
+                })
+                .Fail(delegate (Exception error)
+                {
+                    Console.WriteLine(error.Message);
+                })
+
+
+                // ========== ThenNew ==========
+                .ThenNew<string>(delegate ()
+                {
+                    return "DDD";
                 })
                 .Then(delegate (string message)
                 {
                     Console.WriteLine(message);
                 })
 
-                // Throw
-                .Then(delegate ()
+                // ThenNewPromise - Resolve
+                .ThenNewPromise<string>(delegate ()
                 {
-                    throw new Exception("BBB");
-                })
-                .Catch(delegate(Exception error)
-                {
-                    throw error;
-                })
-                .Catch(delegate (Exception error)
-                {
-                    Console.WriteLine(error.Message);
-                })
-
-                // Result - Promise
-                .Then<string>(delegate ()
-                {
-                    return Promise.Resolve("CCC");
+                    var newPromise = new ResultPromise<string>();
+                    newPromise.Resolve("EEE");
+                    return newPromise;
                 })
                 .Then(delegate (string message)
                 {
                     Console.WriteLine(message);
                 })
 
-                // Throw
-                .Then(delegate ()
+                // ThenNewPromise - Reject
+                .ThenNewPromise<string>(delegate ()
                 {
-                    return Promise.Reject(new Exception("DDD"));
+                    var newPromise = new ResultPromise<string>();
+                    newPromise.Reject(new Exception("FFF"));
+                    return newPromise;
                 })
-                .Catch(delegate (Exception error)
-                {
-                    throw error;
-                })
-                .Catch(delegate (Exception error)
+                .Fail(delegate (Exception error)
                 {
                     Console.WriteLine(error.Message);
                 })
 
-                // End
+
+                // ========== Throw ==========
+                .Then(delegate ()
+                {
+                    throw new Exception("GGG");
+                })
+                .Fail(delegate (Exception error)
+                {
+                    throw error;
+                })
+                .Fail(delegate (Exception error)
+                {
+                    Console.WriteLine(error.Message);
+                })
+
+
+                // ========== End ==========
                 .Progress(delegate (Progress progress)
                 {
                     Console.WriteLine("Progress:" + progress.Description);
                 })
-                .Catch(delegate (Exception error)
+                .Fail(delegate (Exception error)
                 {
-                    Console.WriteLine("Catch:" + error.Message);
+                    Console.WriteLine("Fail:" + error.Message);
                 })
                 .Then(delegate ()
                 {
                     Console.WriteLine("End");
-                })            
+                })
             ;
 
-            x.Notify(new Progress(0, 100, "0%"));
-            x.Notify(new Progress(50, 100, "50%"));
-            x.Notify(new Progress(100, 100, "100%"));
-            x.Resolve();
+            // Operate 
+            promise.Notify(new Progress(0, 100, "0%"));
+            promise.Notify(new Progress(50, 100, "50%"));
+            promise.Notify(new Progress(100, 100, "100%"));
+            promise.Resolve();
+
+            // End
             Console.ReadLine();
         }
     }

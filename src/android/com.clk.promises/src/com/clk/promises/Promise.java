@@ -104,11 +104,11 @@ public class Promise<TResult> {
         // sync
         synchronized (_syncRoot)
         {
-            // State
+            // state
             if (_state != PromiseState.Pending) return;
             _state = PromiseState.Resolved;
 
-            // Results
+            // results
             _result = result;
             _error = null;
         }
@@ -145,7 +145,7 @@ public class Promise<TResult> {
         ArrayList<Action.Type1<Exception>> rejectHandlers = _rejectHandlers;
         if (rejectHandlers == null) return;
 
-        // resolve
+        // reject
         for (Action.Type1<Exception> rejectHandler : rejectHandlers)
         {
         	rejectHandler.raise(error);
