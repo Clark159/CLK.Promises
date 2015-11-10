@@ -300,16 +300,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
     }
     
     
-    // then
-	public EmptyPromise then(final Action.Type1<TResult> onResolved, final Action.Type1<Exception> onRejected, final Action.Type1<Progress> onNotified)
-	{ 
-		return this.pushThen(
-			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) throws Exception { onResolved.raise(result); return null; }}, ResultType.Empty,
-			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) throws Exception { onRejected.raise(error); return null; }}, ResultType.Empty,
-			onNotified	
-    	);
-	};	
-	
+    // then	
     public EmptyPromise then(final Action.Type1<TResult> onResolved)
     {
     	return this.pushThen(
@@ -319,6 +310,24 @@ public class ResultPromise<TResult> extends Promise<TResult> {
     	);
     }
 
+    public EmptyPromise then(final Action.Type1<TResult> onResolved, final Action.Type1<Exception> onRejected)
+	{ 
+		return this.pushThen(
+			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) throws Exception { onResolved.raise(result); return null; }}, ResultType.Empty,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) throws Exception { onRejected.raise(error); return null; }}, ResultType.Empty,
+			this.passNotified()
+    	);
+	};	
+	
+	public EmptyPromise then(final Action.Type1<TResult> onResolved, final Action.Type1<Exception> onRejected, final Action.Type1<Progress> onNotified)
+	{ 
+		return this.pushThen(
+			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) throws Exception { onResolved.raise(result); return null; }}, ResultType.Empty,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) throws Exception { onRejected.raise(error); return null; }}, ResultType.Empty,
+			onNotified	
+    	);
+	};	
+	
 	public EmptyPromise thenPromise(final Func.Type1<TResult, EmptyPromise> onResolved)
     {
 		return this.pushThen(

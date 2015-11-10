@@ -283,21 +283,30 @@ namespace CLK.Promises
 
 
         // Then
-        public EmptyPromise Then(Action onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
-        {
-            return this.PushThen(
-                delegate () { onResolved(); return null; }, ResultType.Empty,
-                delegate (Exception error) { onRejected(error); return null; }, ResultType.Empty,
-                onNotified
-            );
-        }
-
         public EmptyPromise Then(Action onResolved)
         {
             return this.PushThen(
                 delegate () { onResolved(); return null; }, ResultType.Empty,
                 this.PassRejected(), ResultType.Empty,
                 this.PassNotified()
+            );
+        }
+
+        public EmptyPromise Then(Action onResolved, Action<Exception> onRejected)
+        {
+            return this.PushThen(
+                delegate () { onResolved(); return null; }, ResultType.Empty,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.Empty,
+                this.PassNotified()
+            );
+        }
+
+        public EmptyPromise Then(Action onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
+        {
+            return this.PushThen(
+                delegate () { onResolved(); return null; }, ResultType.Empty,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.Empty,
+                onNotified
             );
         }
 
