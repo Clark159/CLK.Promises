@@ -17,7 +17,7 @@ namespace CLK.Promises
 
 
         // Methods 	
-        private EmptyPromise PushThen(
+        protected EmptyPromise PushThen(
              Func<TResult, Object> onResolved, ResultType onResolvedResultType,
              Func<Exception, Object> onRejected, ResultType onRejectedResultType,
              Action<Progress> onNotified)
@@ -115,7 +115,7 @@ namespace CLK.Promises
             return thenPromise;
         }
 
-        private ResultPromise<TNewResult> PushThenNew<TNewResult>(
+        protected ResultPromise<TNewResult> PushThenNew<TNewResult>(
                Func<TResult, Object> onResolved, ResultType onResolvedResultType,
                Func<Exception, Object> onRejected, ResultType onRejectedResultType,
                Action<Progress> onNotified)

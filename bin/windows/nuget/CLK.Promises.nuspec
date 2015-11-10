@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>CLK.Promises</id>
+        <version>0.0.0</version>
+        <title>CLK.Promises</title>
+        <authors>Clark</authors>
+        <owners>Clark</owners>
+        <requireLicenseAcceptance>true</requireLicenseAcceptance>
+        <licenseUrl>https://github.com/Clark159/CLK.Promises/blob/master/LICENSE</licenseUrl>
+        <description>CLK.Promises</description>
+        <copyright>Copyright © 2015 CLK Software Studio</copyright>
+        <dependencies>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="..\..\..\src\windows\CLK.Promises\bin\Release\CLK.Promises.dll" target="lib\net45" />
+    </files>
+</package>
