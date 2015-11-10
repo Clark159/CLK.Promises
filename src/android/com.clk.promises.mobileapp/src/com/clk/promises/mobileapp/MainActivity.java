@@ -113,6 +113,24 @@ public class MainActivity extends Activity {
     		})
             
             
+            // ========== Throw ==========
+            .then(new Action.Type0() {
+				@Override public void raise() {
+					throw new RuntimeException("GGG");
+				}    			
+    		})
+            .fail(new Action.Type1<Exception>(){
+				@Override public void raise(Exception error) {
+					throw new RuntimeException(error.getMessage());
+				}    			
+    		})
+            .fail(new Action.Type1<Exception>(){
+				@Override public void raise(Exception error) {
+					writeLine(error.getMessage());
+				}    			
+    		})
+            
+            
     		// ========== end ==========
     		.progress(new Action.Type1<Progress>() {
 				@Override public void raise(Progress progress) {
@@ -144,7 +162,7 @@ public class MainActivity extends Activity {
 		TextView textView = (TextView)findViewById(R.id.displayTextView);
 		
 		// writeLine
-		textView.append("\n" + message);
+		textView.append(message + "\n");
 	}
 	
 	
