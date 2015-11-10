@@ -306,8 +306,8 @@ public class EmptyPromise extends Promise<Object> {
 	public EmptyPromise then(final Action.Type0 onResolved, final Action.Type1<Exception> onRejected, final Action.Type1<Progress> onNotified)
 	{ 
 		return this.pushThen(
-			new Func.Type0<Object>() { @Override public Object raise() { onResolved.raise(); return null; }}, ResultType.Empty,
-			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { onRejected.raise(error); return null; }}, ResultType.Empty,
+			new Func.Type0<Object>() { @Override public Object raise() throws Exception { onResolved.raise(); return null; }}, ResultType.Empty,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) throws Exception { onRejected.raise(error); return null; }}, ResultType.Empty,
 			onNotified	
     	);
 	};	
@@ -315,7 +315,7 @@ public class EmptyPromise extends Promise<Object> {
     public EmptyPromise then(final Action.Type0 onResolved)
     {
     	return this.pushThen(
-			new Func.Type0<Object>() { @Override public Object raise() { onResolved.raise(); return null; }}, ResultType.Empty,
+			new Func.Type0<Object>() { @Override public Object raise() throws Exception { onResolved.raise(); return null; }}, ResultType.Empty,
 			this.passRejected(), ResultType.Empty,
 			this.passNotified()
     	);
@@ -324,7 +324,7 @@ public class EmptyPromise extends Promise<Object> {
 	public EmptyPromise thenPromise(final Func.Type0<EmptyPromise> onResolved)
     {
 		return this.pushThen(
-			new Func.Type0<Object>() { @Override public Object raise() { return onResolved.raise(); }}, ResultType.EmptyPromise,
+			new Func.Type0<Object>() { @Override public Object raise() throws Exception { return onResolved.raise(); }}, ResultType.EmptyPromise,
 			this.passRejected(), ResultType.Empty,
 			this.passNotified()
     	);
@@ -335,7 +335,7 @@ public class EmptyPromise extends Promise<Object> {
     public <TNewResult> ResultPromise<TNewResult> thenNew(final Func.Type0<TNewResult> onResolved)
     {
     	return this.pushThenNew(
-			new Func.Type0<Object>() { @Override public Object raise() { return onResolved.raise(); }}, ResultType.New,
+			new Func.Type0<Object>() { @Override public Object raise() throws Exception { return onResolved.raise(); }}, ResultType.New,
 			this.passRejected(), ResultType.Empty,
 			this.passNotified()
     	);
@@ -344,7 +344,7 @@ public class EmptyPromise extends Promise<Object> {
     public <TNewResult> ResultPromise<TNewResult> thenNewPromise(final Func.Type0<ResultPromise<TNewResult>> onResolved)
     {
     	return this.pushThenNew(
-			new Func.Type0<Object>() { @Override public Object raise() { return onResolved.raise(); }}, ResultType.NewPromise,
+			new Func.Type0<Object>() { @Override public Object raise() throws Exception { return onResolved.raise(); }}, ResultType.NewPromise,
 			this.passRejected(), ResultType.Empty,
 			this.passNotified()
     	);
@@ -356,7 +356,7 @@ public class EmptyPromise extends Promise<Object> {
     {
     	return this.pushThen(
     		this.passResolved(), ResultType.Empty,
-			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { onRejected.raise(error); return null; }}, ResultType.Empty,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) throws Exception { onRejected.raise(error); return null; }}, ResultType.Empty,
 			this.passNotified()
     	);
     }
@@ -365,7 +365,7 @@ public class EmptyPromise extends Promise<Object> {
     {
     	return this.pushThen(
     		this.passResolved(), ResultType.Empty,
-    		new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { return onRejected.raise(error); }}, ResultType.EmptyPromise,
+    		new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) throws Exception { return onRejected.raise(error); }}, ResultType.EmptyPromise,
 			this.passNotified()
     	);
     }
@@ -376,7 +376,7 @@ public class EmptyPromise extends Promise<Object> {
     {
     	return this.pushThenNew(
     		this.passResolved(), ResultType.Empty,
-			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { return onRejected.raise(error); }}, ResultType.New,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) throws Exception { return onRejected.raise(error); }}, ResultType.New,
 			this.passNotified()
     	);
     }
@@ -385,7 +385,7 @@ public class EmptyPromise extends Promise<Object> {
     {
     	return this.pushThenNew(
     		this.passResolved(), ResultType.Empty,
-			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) { return onRejected.raise(error); }}, ResultType.NewPromise,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) throws Exception { return onRejected.raise(error); }}, ResultType.NewPromise,
 			this.passNotified()
     	);
     }

@@ -8,8 +8,8 @@ public final class StringHelper {
 		
 		
 	// methods
-	public static boolean isNullOrEmpty(String value)
-	{
+	public static boolean isNullOrEmpty(String value) {
+		
 		// Require
 		if(value == null) return true;
 		if(value.equals("") == true) return true;
@@ -17,5 +17,4 @@ public final class StringHelper {
 		// Return
 		return false;
 	}
-
 }

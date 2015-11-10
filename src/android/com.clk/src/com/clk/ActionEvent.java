@@ -14,8 +14,8 @@ public final class ActionEvent {
 	public static class Type0 extends ActionEventBase<Action.Type0>	{
 		
 		// methods
-		public void raise()
-		{	
+		public void raise() throws Exception {	
+			
 			// eventHandlerList
 			ArrayList<Action.Type0> eventHandlerList = this.getEventHandlerList();
 			if(eventHandlerList == null) return;
@@ -31,8 +31,8 @@ public final class ActionEvent {
 	public static class Type1<T1> extends ActionEventBase<Action.Type1<T1>>	{
 		
 		// methods
-		public void raise(T1 t1)
-		{	
+		public void raise(T1 t1)  throws Exception {
+			
 			// eventHandlerList
 			ArrayList<Action.Type1<T1>> eventHandlerList = this.getEventHandlerList();
 			if(eventHandlerList == null) return;
@@ -48,8 +48,8 @@ public final class ActionEvent {
 	public static class Type2<T1, T2> extends ActionEventBase<Action.Type2<T1, T2>>	{
 		
 		// methods
-		public void raise(T1 t1, T2 t2)
-		{
+		public void raise(T1 t1, T2 t2) throws Exception {
+			
 			// eventHandlerList
 			ArrayList<Action.Type2<T1, T2>> eventHandlerList = this.getEventHandlerList();
 			if(eventHandlerList == null) return;
@@ -65,8 +65,8 @@ public final class ActionEvent {
 	public static class Type3<T1, T2, T3> extends ActionEventBase<Action.Type3<T1, T2, T3>>	{
 		
 		// methods
-		public void raise(T1 t1, T2 t2, T3 t3)
-		{
+		public void raise(T1 t1, T2 t2, T3 t3) throws Exception	{
+			
 			// eventHandlerList
 			ArrayList<Action.Type3<T1, T2, T3>> eventHandlerList = this.getEventHandlerList();
 			if(eventHandlerList == null) return;

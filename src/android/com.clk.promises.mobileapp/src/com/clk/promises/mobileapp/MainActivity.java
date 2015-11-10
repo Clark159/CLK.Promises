@@ -115,13 +115,13 @@ public class MainActivity extends Activity {
             
             // ========== Throw ==========
             .then(new Action.Type0() {
-				@Override public void raise() {
-					throw new RuntimeException("GGG");
+				@Override public void raise() throws Exception {
+					throw new Exception("GGG");
 				}    			
     		})
             .fail(new Action.Type1<Exception>(){
-				@Override public void raise(Exception error) {
-					throw new RuntimeException(error.getMessage());
+				@Override public void raise(Exception error) throws Exception {
+					throw error;
 				}    			
     		})
             .fail(new Action.Type1<Exception>(){

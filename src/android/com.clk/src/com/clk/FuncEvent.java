@@ -14,8 +14,8 @@ public final class FuncEvent {
 	public static class Type0<TResult> extends FuncEventBase<Func.Type0<TResult>> {
 		
 		// methods
-		public TResult raise()
-		{	
+		public TResult raise() throws Exception	{
+			
 			// eventHandlerList
 			ArrayList<Func.Type0<TResult>> eventHandlerList = this.getEventHandlerList();
 			if(eventHandlerList == null) return null;
@@ -35,8 +35,8 @@ public final class FuncEvent {
 	public static class Type1<T1, TResult> extends FuncEventBase<Func.Type1<T1, TResult>> {
 				
 		// methods
-		public TResult raise(T1 t1)
-		{	
+		public TResult raise(T1 t1) throws Exception {
+			
 			// eventHandlerList
 			ArrayList<Func.Type1<T1, TResult>> eventHandlerList = this.getEventHandlerList();
 			if(eventHandlerList == null) return null;
@@ -56,8 +56,8 @@ public final class FuncEvent {
 	public static class Type2<T1, T2, TResult> extends FuncEventBase<Func.Type2<T1, T2, TResult>> {
 		
 		// methods
-		public TResult raise(T1 t1, T2 t2)
-		{
+		public TResult raise(T1 t1, T2 t2) throws Exception {
+			
 			// eventHandlerList
 			ArrayList<Func.Type2<T1, T2, TResult>> eventHandlerList = this.getEventHandlerList();
 			if(eventHandlerList == null) return null;

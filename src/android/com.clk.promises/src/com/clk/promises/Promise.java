@@ -89,13 +89,21 @@ public class Promise<TResult> {
         // resolved
         if (_state == PromiseState.Resolved)
         {
-            resolveHandler.raise(_result);
+            try {
+				resolveHandler.raise(_result);
+			} catch (Exception ex) {
+				throw new IllegalStateException(ex.getMessage(), ex.getCause());
+			}
         }
 
         // rejected
         if (_state == PromiseState.Rejected)
         {
-            rejectHandler.raise(_error);
+            try {
+				rejectHandler.raise(_error);
+            } catch (Exception ex) {
+				throw new IllegalStateException(ex.getMessage(), ex.getCause());
+			}
         }
     }    
             
@@ -120,7 +128,11 @@ public class Promise<TResult> {
         // resolve
         for (Action.Type1<TResult> resolveHandler : resolveHandlers)
         {
-        	resolveHandler.raise(result);
+        	try {
+				resolveHandler.raise(result);
+        	} catch (Exception ex) {
+				throw new IllegalStateException(ex.getMessage(), ex.getCause());
+			}
         }
     }
 
@@ -148,7 +160,11 @@ public class Promise<TResult> {
         // reject
         for (Action.Type1<Exception> rejectHandler : rejectHandlers)
         {
-        	rejectHandler.raise(error);
+        	try {
+				rejectHandler.raise(error);
+        	} catch (Exception ex) {
+				throw new IllegalStateException(ex.getMessage(), ex.getCause());
+			}
         }
     }
 
@@ -176,7 +192,11 @@ public class Promise<TResult> {
         // notify
         for (Action.Type1<Progress> notifyHandler : notifyHandlers)
         {
-        	notifyHandler.raise(progress);
+        	try {
+				notifyHandler.raise(progress);
+        	} catch (Exception ex) {
+				throw new IllegalStateException(ex.getMessage(), ex.getCause());
+			}
         }
     }
 }
