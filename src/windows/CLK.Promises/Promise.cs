@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CLK.Promises
 {
-    public class Promise<TResult>
+    public abstract class Promise<TResult>
     {
         // Enumerations
         private enum PromiseState

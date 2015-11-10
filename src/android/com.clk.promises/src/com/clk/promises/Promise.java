@@ -40,6 +40,10 @@ public class Promise<TResult> {
     private ArrayList<Action.Type1<Progress>> _notifyHandlersSnapshot = null;
         
     
+    // constructors
+    protected Promise() { }
+ 	
+    
     // methods 
     protected void push(Action.Type1<TResult> resolveHandler, Action.Type1<Exception> rejectHandler, Action.Type1<Progress> notifyHandler)
     {
