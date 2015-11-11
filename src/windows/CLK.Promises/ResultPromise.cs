@@ -22,6 +22,14 @@ namespace CLK.Promises
              Func<Exception, Object> onRejected, ResultType onRejectedResultType,
              Action<Progress> onNotified)
         {
+            #region Contracts
+
+            if (onResolved == null) throw new ArgumentNullException();
+            if (onRejected == null) throw new ArgumentNullException();
+            if (onNotified == null) throw new ArgumentNullException();
+
+            #endregion
+
             // Promise
             EmptyPromise thenPromise = new EmptyPromise();
 
@@ -120,6 +128,14 @@ namespace CLK.Promises
                Func<Exception, Object> onRejected, ResultType onRejectedResultType,
                Action<Progress> onNotified)
         {
+            #region Contracts
+
+            if (onResolved == null) throw new ArgumentNullException();
+            if (onRejected == null) throw new ArgumentNullException();
+            if (onNotified == null) throw new ArgumentNullException();
+
+            #endregion
+
             // Promise
             ResultPromise<TNewResult> thenPromise = new ResultPromise<TNewResult>();
 
