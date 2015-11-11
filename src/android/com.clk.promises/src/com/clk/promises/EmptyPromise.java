@@ -21,6 +21,11 @@ public class EmptyPromise extends Promise<Object> {
     		final Func.Type1<Exception, Object> onRejected, final ResultType onRejectedResultType, 
 			final Action.Type1<Progress> onNotified)
 	{ 
+		// contracts
+        if (onResolved == null) throw new IllegalArgumentException();
+        if (onRejected == null) throw new IllegalArgumentException();
+        if (onNotified == null) throw new IllegalArgumentException();
+        
 		// promise
     	final EmptyPromise thenPromise = new EmptyPromise();
     	
@@ -125,6 +130,11 @@ public class EmptyPromise extends Promise<Object> {
     		final Func.Type1<Exception, Object> onRejected, final ResultType onRejectedResultType, 
 			final Action.Type1<Progress> onNotified)
 	{
+		// contracts
+        if (onResolved == null) throw new IllegalArgumentException();
+        if (onRejected == null) throw new IllegalArgumentException();
+        if (onNotified == null) throw new IllegalArgumentException();
+        
 		// promise
     	final ResultPromise<TNewResult> thenPromise = new ResultPromise<TNewResult>();
     	    
