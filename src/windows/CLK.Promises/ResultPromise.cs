@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CLK.Promises
 {
-    public class ResultPromise<TResult> : Promise<TResult>
+    public class ResultPromise<TResult> : PromiseBase<TResult>
     {
         // Fields
         private Func<TResult, Object> _passResolved = null;
@@ -17,7 +17,7 @@ namespace CLK.Promises
 
 
         // Methods 	
-        protected EmptyPromise PushThen(
+        protected Promise PushThen(
              Func<TResult, Object> onResolved, ResultType onResolvedResultType,
              Func<Exception, Object> onRejected, ResultType onRejectedResultType,
              Action<Progress> onNotified)
@@ -31,7 +31,7 @@ namespace CLK.Promises
             #endregion
 
             // Promise
-            EmptyPromise thenPromise = new EmptyPromise();
+            Promise thenPromise = new Promise();
 
             // ResolveHandler
             Action<TResult> resolveHandler = delegate (TResult result)
@@ -51,7 +51,7 @@ namespace CLK.Promises
                         case ResultType.EmptyPromise:
                             if (resultObject != null)
                             {
-                                ((EmptyPromise)resultObject).Then(
+                                ((Promise)resultObject).Then(
                                     delegate () { thenPromise.Resolve(); },
                                     delegate (Exception thenError) { thenPromise.Reject(thenError); },
                                     delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
@@ -88,7 +88,7 @@ namespace CLK.Promises
                         case ResultType.EmptyPromise:
                             if (resultObject != null)
                             {
-                                ((EmptyPromise)resultObject).Then(
+                                ((Promise)resultObject).Then(
                                     delegate () { thenPromise.Resolve(); },
                                     delegate (Exception thenError) { thenPromise.Reject(thenError); },
                                     delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
@@ -165,7 +165,7 @@ namespace CLK.Promises
                         case ResultType.EmptyPromise:
                             if (resultObject != null)
                             {
-                                ((EmptyPromise)resultObject).Then(
+                                ((Promise)resultObject).Then(
                                     delegate () { thenPromise.Resolve(default(TNewResult)); },
                                     delegate (Exception thenError) { thenPromise.Reject(thenError); },
                                     delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
@@ -218,7 +218,7 @@ namespace CLK.Promises
                         case ResultType.EmptyPromise:
                             if (resultObject != null)
                             {
-                                ((EmptyPromise)resultObject).Then(
+                                ((Promise)resultObject).Then(
                                     delegate () { thenPromise.Resolve(default(TNewResult)); },
                                     delegate (Exception thenError) { thenPromise.Reject(thenError); },
                                     delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
@@ -324,7 +324,7 @@ namespace CLK.Promises
 
 
         // Then
-        public EmptyPromise Then(Action<TResult> onResolved)
+        public Promise Then(Action<TResult> onResolved)
         {
             return this.PushThen(
                 delegate (TResult result) { onResolved(result); return null; }, ResultType.Empty,
@@ -333,7 +333,7 @@ namespace CLK.Promises
             );
         }
 
-        public EmptyPromise Then(Action<TResult> onResolved, Action<Exception> onRejected)
+        public Promise Then(Action<TResult> onResolved, Action<Exception> onRejected)
         {
             return this.PushThen(
                 delegate (TResult result) { onResolved(result); return null; }, ResultType.Empty,
@@ -342,7 +342,7 @@ namespace CLK.Promises
             );
         }
 
-        public EmptyPromise Then(Action<TResult> onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
+        public Promise Then(Action<TResult> onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
         {
             return this.PushThen(
                 delegate (TResult result) { onResolved(result); return null; }, ResultType.Empty,
@@ -351,7 +351,7 @@ namespace CLK.Promises
             );
         }
 
-        public EmptyPromise ThenPromise(Func<TResult, EmptyPromise> onResolved)
+        public Promise ThenPromise(Func<TResult, Promise> onResolved)
         {
             return this.PushThen(
                 delegate (TResult result) { return onResolved(result); }, ResultType.EmptyPromise,
@@ -382,7 +382,7 @@ namespace CLK.Promises
 
 
         // Fail
-        public EmptyPromise Fail(Action<Exception> onRejected)
+        public Promise Fail(Action<Exception> onRejected)
         {
             return this.PushThen(
                 this.PassResolved(), ResultType.Empty,
@@ -391,7 +391,7 @@ namespace CLK.Promises
             );
         }
 
-        public EmptyPromise FailPromise(Func<Exception, EmptyPromise> onRejected)
+        public Promise FailPromise(Func<Exception, Promise> onRejected)
         {
             return this.PushThen(
                 this.PassResolved(), ResultType.Empty,
@@ -402,7 +402,7 @@ namespace CLK.Promises
 
 
         // FailNew
-        public Promise<TNewResult> FailNew<TNewResult>(Func<Exception, TNewResult> onRejected)
+        public PromiseBase<TNewResult> FailNew<TNewResult>(Func<Exception, TNewResult> onRejected)
         {
             return this.PushThenNew<TNewResult>(
                 this.PassResolved(), ResultType.Empty,
@@ -411,7 +411,7 @@ namespace CLK.Promises
             );
         }
 
-        public Promise<TNewResult> FailNewPromise<TNewResult>(Func<Exception, Promise<TNewResult>> onRejected)
+        public PromiseBase<TNewResult> FailNewPromise<TNewResult>(Func<Exception, PromiseBase<TNewResult>> onRejected)
         {
             return this.PushThenNew<TNewResult>(
                 this.PassResolved(), ResultType.Empty,
@@ -422,7 +422,7 @@ namespace CLK.Promises
 
 
         // Progress
-        public EmptyPromise Progress(Action<Progress> onNotified)
+        public Promise Progress(Action<Progress> onNotified)
         {
             return this.PushThen(
                 this.PassResolved(), ResultType.Empty,

@@ -3,7 +3,7 @@ package com.clk.promises;
 import com.clk.Action;
 import com.clk.Func;
 
-public class ResultPromise<TResult> extends Promise<TResult> {
+public class ResultPromise<TResult> extends PromiseBase<TResult> {
 	
 	// fields
 	private Func.Type1<TResult, Object> _passResolved = null;
@@ -14,7 +14,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
 	
     
     // methods 	
- 	private EmptyPromise pushThen(
+ 	private Promise pushThen(
      		final Func.Type1<TResult, Object> onResolved, final ResultType onResolvedResultType,
      		final Func.Type1<Exception, Object> onRejected, final ResultType onRejectedResultType, 
  			final Action.Type1<Progress> onNotified)
@@ -25,7 +25,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
         if (onNotified == null) throw new IllegalArgumentException();
         
  		// promise
-     	final EmptyPromise thenPromise = new EmptyPromise();
+     	final Promise thenPromise = new Promise();
      	
      	// resolveHandler
          Action.Type1<TResult> resolveHandler = new Action.Type1<TResult> ()
@@ -45,7 +45,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
                          
                          case EmptyPromise:
                         	 if (resultObject != null) {
-                        		 ((EmptyPromise)resultObject).then(
+                        		 ((Promise)resultObject).then(
                         		     new Action.Type0() { @Override public void raise() {  thenPromise.resolve(); }},	
                         			 new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
                         			 new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
@@ -83,7 +83,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
                          
                          case EmptyPromise:
                         	 if (resultObject != null) {
-                        		 ((EmptyPromise)resultObject).then(
+                        		 ((Promise)resultObject).then(
      	                		     new Action.Type0() { @Override public void raise() {  thenPromise.resolve(); }},	
      	                             new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
      	                             new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
@@ -161,7 +161,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
                         
                         case EmptyPromise:
                         	if (resultObject != null) {
-	                        	((EmptyPromise)resultObject).then(
+	                        	((Promise)resultObject).then(
 	    	                		new Action.Type0() { @Override public void raise() {  thenPromise.resolve(null); }},	
 	    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
 	    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
@@ -215,7 +215,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
                         
                         case EmptyPromise:
                         	if (resultObject != null) {
-	                        	((EmptyPromise)resultObject).then(
+	                        	((Promise)resultObject).then(
 	    	                		new Action.Type0() { @Override public void raise() {  thenPromise.resolve(null); }},	
 	    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
 	    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
@@ -329,7 +329,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
     
     
     // then	
-    public EmptyPromise then(final Action.Type1<TResult> onResolved)
+    public Promise then(final Action.Type1<TResult> onResolved)
     {
     	return this.pushThen(
 			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) throws Exception { onResolved.raise(result); return null; }}, ResultType.Empty,
@@ -338,7 +338,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
     	);
     }
 
-    public EmptyPromise then(final Action.Type1<TResult> onResolved, final Action.Type1<Exception> onRejected)
+    public Promise then(final Action.Type1<TResult> onResolved, final Action.Type1<Exception> onRejected)
 	{ 
 		return this.pushThen(
 			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) throws Exception { onResolved.raise(result); return null; }}, ResultType.Empty,
@@ -347,7 +347,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
     	);
 	};	
 	
-	public EmptyPromise then(final Action.Type1<TResult> onResolved, final Action.Type1<Exception> onRejected, final Action.Type1<Progress> onNotified)
+	public Promise then(final Action.Type1<TResult> onResolved, final Action.Type1<Exception> onRejected, final Action.Type1<Progress> onNotified)
 	{ 
 		return this.pushThen(
 			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) throws Exception { onResolved.raise(result); return null; }}, ResultType.Empty,
@@ -356,7 +356,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
     	);
 	};	
 	
-	public EmptyPromise thenPromise(final Func.Type1<TResult, EmptyPromise> onResolved)
+	public Promise thenPromise(final Func.Type1<TResult, Promise> onResolved)
     {
 		return this.pushThen(
 			new Func.Type1<TResult, Object>() { @Override public Object raise(TResult result) throws Exception { return onResolved.raise(result); }}, ResultType.EmptyPromise,
@@ -387,7 +387,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
 
     
     // catch
-    public EmptyPromise fail(final Action.Type1<Exception> onRejected)
+    public Promise fail(final Action.Type1<Exception> onRejected)
     {
     	return this.pushThen(
     		this.passResolved(), ResultType.Empty,
@@ -396,7 +396,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
     	);
     }
 
-    public EmptyPromise failPromise(final Func.Type1<Exception, EmptyPromise> onRejected)
+    public Promise failPromise(final Func.Type1<Exception, Promise> onRejected)
     {
     	return this.pushThen(
     		this.passResolved(), ResultType.Empty,
@@ -407,7 +407,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
     
     
     // catchNew
-    public <TNewResult> Promise<TNewResult> failNew(final Func.Type1<Exception, TNewResult> onRejected)
+    public <TNewResult> PromiseBase<TNewResult> failNew(final Func.Type1<Exception, TNewResult> onRejected)
     {
     	return this.pushThenNew(
     		this.passResolved(), ResultType.Empty,
@@ -416,7 +416,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
     	);
     }
 
-    public <TNewResult> Promise<TNewResult> failNewPromise(final Func.Type1<Exception, Promise<TNewResult>> onRejected)
+    public <TNewResult> PromiseBase<TNewResult> failNewPromise(final Func.Type1<Exception, PromiseBase<TNewResult>> onRejected)
     {
     	return this.pushThenNew(
     		this.passResolved(), ResultType.Empty,
@@ -427,7 +427,7 @@ public class ResultPromise<TResult> extends Promise<TResult> {
 
     
     // progress
-    public EmptyPromise progress(Action.Type1<Progress> onNotified)
+    public Promise progress(Action.Type1<Progress> onNotified)
     {
     	return this.pushThen(
     		this.passResolved(), ResultType.Empty,

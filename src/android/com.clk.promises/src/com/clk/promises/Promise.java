@@ -1,206 +1,440 @@
 package com.clk.promises;
 
 
-import java.util.ArrayList;
 import com.clk.Action;
+import com.clk.Func;
 
 
-public class Promise<TResult> {
-
-	// enumerations
-    private enum PromiseState {
-        Pending,  // unresolved  
-        Resolved, // has-resolution
-        Rejected, // has-rejection
-    };
-    
-    protected enum ResultType {
-    	Empty,
-    	EmptyPromise,
-        New,
-        NewPromise,
-    }
-    
-    
+public class Promise extends PromiseBase<Object> {
+    	
 	// fields
-    private Object _syncRoot = new Object();
+	private Func.Type0<Object> _passResolved = null;
 
-    private PromiseState _state = PromiseState.Pending;
+    private Func.Type1<Exception, Object> _passRejected = null;
 
-    private TResult _result = null;
-
-    private Exception _error = null;    
+    private Action.Type1<Progress> _passNotified = null;
     
-    private ArrayList<Action.Type1<TResult>> _resolveHandlers = null;
-
-    private ArrayList<Action.Type1<Exception>> _rejectHandlers = null;
-
-    private ArrayList<Action.Type1<Progress>> _notifyHandlers = null;
-
-    private ArrayList<Action.Type1<Progress>> _notifyHandlersSnapshot = null;
+    
+    // methods 	
+	private Promise pushThen(
+    		final Func.Type0<Object> onResolved, final ResultType onResolvedResultType,
+    		final Func.Type1<Exception, Object> onRejected, final ResultType onRejectedResultType, 
+			final Action.Type1<Progress> onNotified)
+	{ 
+		// contracts
+        if (onResolved == null) throw new IllegalArgumentException();
+        if (onRejected == null) throw new IllegalArgumentException();
+        if (onNotified == null) throw new IllegalArgumentException();
         
-    
-    // constructors
-    protected Promise() { }
- 	
-    
-    // methods 
-    protected void push(Action.Type1<TResult> resolveHandler, Action.Type1<Exception> rejectHandler, Action.Type1<Progress> notifyHandler)
+		// promise
+    	final Promise thenPromise = new Promise();
+    	
+    	// resolveHandler
+        Action.Type1<Object> resolveHandler = new Action.Type1<Object> ()
+        {        	
+			@Override public void raise(Object result) {
+				try
+	            {
+	                // execute
+	                Object resultObject = onResolved.raise();
+
+	                // distribute
+	                switch (onResolvedResultType)
+                    {
+                    	case Empty:
+	                        thenPromise.resolve();
+	                        break;
+                        
+                        case EmptyPromise:
+                        	if (resultObject != null) {
+	                        	((Promise)resultObject).then(
+	    	                		new Action.Type0() { @Override public void raise() {  thenPromise.resolve(); }},	
+	    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
+	    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
+	    	                    );
+                        	}
+                        	else { throw new Exception("Invalid Result"); }
+                            break;
+                        	
+                        default:
+                            throw new Exception("Invalid Result Type");
+                    }
+	            }
+	            catch (Exception ex)
+	            {
+	                thenPromise.reject(ex);
+	            }
+			}        	
+        };
+        
+        // rejectHandler
+        Action.Type1<Exception> rejectHandler = new Action.Type1<Exception>() 
+        {
+        	@Override public void raise(Exception error) {        		
+	            try
+	            {
+	                // execute
+	                Object resultObject = onRejected.raise(error);
+	
+	                // distribute
+	                switch (onRejectedResultType)
+                    {
+                    	case Empty:
+	                        thenPromise.resolve();
+	                        break;
+                        
+                        case EmptyPromise:
+                        	if (resultObject != null) {
+	                        	((Promise)resultObject).then(
+	    	                		new Action.Type0() { @Override public void raise() {  thenPromise.resolve(); }},	
+	    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
+	    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
+	    	                    );
+                        	}
+                        	else { throw new Exception("Invalid Result"); }
+                            break;
+
+                        default:
+                            throw new Exception("Invalid Result Type");
+                    }
+	            }
+	            catch (Exception ex)
+	            {
+	                thenPromise.reject(ex);
+	            }
+        	}
+        };
+        
+        // notifyHandler
+        Action.Type1<Progress> notifyHandler = new Action.Type1<Progress>() 
+        {
+        	@Override public void raise(Progress progress) {
+	            try
+	            {
+	                // execute
+	                onNotified.raise(progress);
+	
+	                // distribute
+	                thenPromise.notify(progress);
+	            }
+	            catch (Exception ex)
+	            {
+	                thenPromise.reject(ex);
+	            }
+			}
+        };
+    	
+        // push
+        this.push(resolveHandler, rejectHandler, notifyHandler);   
+    	
+    	// return
+    	return thenPromise;
+	}
+	
+	private <TNewResult> ResultPromise<TNewResult> pushThenNew(
+    		final Func.Type0<Object> onResolved, final ResultType onResolvedResultType,
+    		final Func.Type1<Exception, Object> onRejected, final ResultType onRejectedResultType, 
+			final Action.Type1<Progress> onNotified)
+	{
+		// contracts
+        if (onResolved == null) throw new IllegalArgumentException();
+        if (onRejected == null) throw new IllegalArgumentException();
+        if (onNotified == null) throw new IllegalArgumentException();
+        
+		// promise
+    	final ResultPromise<TNewResult> thenPromise = new ResultPromise<TNewResult>();
+    	    
+    	// resolveHandler
+        Action.Type1<Object> resolveHandler = new Action.Type1<Object> ()
+        {        	
+			@SuppressWarnings("unchecked")
+			@Override public void raise(Object result) {
+				try
+	            {
+	                // execute
+	                Object resultObject = onResolved.raise();
+
+	                // distribute
+	                switch (onResolvedResultType)
+                    {
+                    	case Empty:
+	                        thenPromise.resolve(null);
+	                        break;
+                        
+                        case EmptyPromise:
+                        	if (resultObject != null) {
+	                        	((Promise)resultObject).then(
+	    	                		new Action.Type0() { @Override public void raise() {  thenPromise.resolve(null); }},	
+	    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
+	    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
+	    	                    );
+                        	}
+                        	else { throw new Exception("Invalid Result"); }
+                            break;
+                            
+                        case New:
+                            thenPromise.resolve((TNewResult)resultObject);
+                            break;
+                            
+                        case NewPromise:
+                        	if (resultObject != null) {
+	                        	((ResultPromise<TNewResult>)resultObject).then(
+	    	                		new Action.Type1<TNewResult>() { @Override public void raise(TNewResult thenResult) {  thenPromise.resolve(thenResult); }},	
+	    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
+	    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
+	    	                    );
+                        	}
+                        	else { throw new Exception("Invalid Result"); }
+                        	break;
+                        	
+                        default:
+                            throw new Exception("Invalid Result Type");
+                    }
+	            }
+	            catch (Exception ex)
+	            {
+	                thenPromise.reject(ex);
+	            }
+			}        	
+        };
+        
+        // rejectHandler
+        Action.Type1<Exception> rejectHandler = new Action.Type1<Exception>() 
+        {
+        	@SuppressWarnings("unchecked")
+        	@Override public void raise(Exception error) {        		
+	            try
+	            {
+	                // execute
+	                Object resultObject = onRejected.raise(error);
+	
+	                // distribute
+	                switch (onRejectedResultType)
+                    {
+                    	case Empty:
+	                        thenPromise.resolve(null);
+	                        break;
+                        
+                        case EmptyPromise:
+                        	if (resultObject != null) {
+	                        	((Promise)resultObject).then(
+	    	                		new Action.Type0() { @Override public void raise() {  thenPromise.resolve(null); }},	
+	    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
+	    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
+	    	                    );
+                        	}
+                        	else { throw new Exception("Invalid Result"); }
+                            break;
+                            
+                        case New:
+                            thenPromise.resolve((TNewResult)resultObject);
+                            break;
+                            
+                        case NewPromise:
+                        	if (resultObject != null) {
+	                        	((ResultPromise<TNewResult>)resultObject).then(
+	    	                		new Action.Type1<TNewResult>() { @Override public void raise(TNewResult thenResult) {  thenPromise.resolve(thenResult); }},	
+	    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
+	    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
+	    	                    );
+                        	}
+                        	else { throw new Exception("Invalid Result"); }
+                        	break;
+
+                        default:
+                            throw new Exception("Invalid Result Type");
+                    }
+	            }
+	            catch (Exception ex)
+	            {
+	                thenPromise.reject(ex);
+	            }
+        	}
+        };
+
+        // notifyHandler
+        Action.Type1<Progress> notifyHandler = new Action.Type1<Progress>() 
+        {
+        	@Override public void raise(Progress progress) {
+	            try
+	            {
+	                // execute
+	                onNotified.raise(progress);
+	
+	                // distribute
+	                thenPromise.notify(progress);
+	            }
+	            catch (Exception ex)
+	            {
+	                thenPromise.reject(ex);
+	            }
+			}
+        };
+    	
+        // push
+        this.push(resolveHandler, rejectHandler, notifyHandler);    	
+                
+    	// return
+        return thenPromise;
+	}
+	
+	
+	private Func.Type0<Object> passResolved()
     {
-        // contracts
-        if (resolveHandler == null) throw new IllegalArgumentException();
-        if (rejectHandler == null) throw new IllegalArgumentException();
-        if (notifyHandler == null) throw new IllegalArgumentException();
-
-        // sync         
-        synchronized (_syncRoot)
+        if (_passResolved == null)
         {
-            // resolveHandler
-            if (_state == PromiseState.Pending)
+            _passResolved = new Func.Type0<Object>()
             {
-                if(_resolveHandlers==null)
-                {
-                    _resolveHandlers = new ArrayList<Action.Type1<TResult>>();
-                }
-                _resolveHandlers.add(resolveHandler);
-            }
-
-            // rejectHandler
-            if (_state == PromiseState.Pending)
-            {
-                if (_rejectHandlers == null)
-                {
-                    _rejectHandlers = new ArrayList<Action.Type1<Exception>>();
-                }
-                _rejectHandlers.add(rejectHandler);
-            }
-
-            // notifyHandler
-            if (_notifyHandlers == null)
-            {
-                _notifyHandlers = new ArrayList<Action.Type1<Progress>>();
-            }
-            _notifyHandlers.add(notifyHandler);
-            _notifyHandlersSnapshot = null;
-
-            // pending
-            if (_state == PromiseState.Pending)
-            {
-                return;
-            }
+				@Override public Object raise() {
+					return null;
+				}               
+            };
         }
-
-        // resolved
-        if (_state == PromiseState.Resolved)
-        {
-            try {
-				resolveHandler.raise(_result);
-			} catch (Exception ex) {
-				throw new IllegalStateException(ex.getMessage(), ex.getCause());
-			}
-        }
-
-        // rejected
-        if (_state == PromiseState.Rejected)
-        {
-            try {
-				rejectHandler.raise(_error);
-            } catch (Exception ex) {
-				throw new IllegalStateException(ex.getMessage(), ex.getCause());
-			}
-        }
-    }    
-            
-    protected void resolveBase(TResult result)
-    {
-        // sync
-        synchronized (_syncRoot)
-        {
-            // state
-            if (_state != PromiseState.Pending) return;
-            _state = PromiseState.Resolved;
-
-            // results
-            _result = result;
-            _error = null;
-        }
-
-        // handlers
-        ArrayList<Action.Type1<TResult>> resolveHandlers = _resolveHandlers;
-        if (resolveHandlers == null) return;
-
-        // resolve
-        for (Action.Type1<TResult> resolveHandler : resolveHandlers)
-        {
-        	try {
-				resolveHandler.raise(result);
-        	} catch (Exception ex) {
-				throw new IllegalStateException(ex.getMessage(), ex.getCause());
-			}
-        }
+        return _passResolved;
     }
 
-    public void reject(Exception error)
+    private Func.Type1<Exception, Object> passRejected()
     {
-        // contracts
-        if (error == null) throw new IllegalArgumentException();
-
-        // sync            
-        synchronized (_syncRoot)
+        if (_passRejected == null)
         {
-            // state
-            if (_state != PromiseState.Pending) return;
-            _state = PromiseState.Rejected;
-
-            // result
-            _result = null;
-            _error = error;
+        	_passRejected = new Func.Type1<Exception, Object>()
+            {
+				@Override public Object raise(Exception error) {		
+					throw new RuntimeException(error.getMessage());
+				}                
+            };
         }
-
-        // handlers
-        ArrayList<Action.Type1<Exception>> rejectHandlers = _rejectHandlers;
-        if (rejectHandlers == null) return;
-
-        // reject
-        for (Action.Type1<Exception> rejectHandler : rejectHandlers)
-        {
-        	try {
-				rejectHandler.raise(error);
-        	} catch (Exception ex) {
-				throw new IllegalStateException(ex.getMessage(), ex.getCause());
-			}
-        }
+        return _passRejected;
     }
 
-    public void notify(Progress progress)
+    private Action.Type1<Progress> passNotified()
     {
-    	// contracts
-        if (progress == null) throw new IllegalArgumentException();
-
-        // handlers
-        ArrayList<Action.Type1<Progress>> notifyHandlers = null;            
-        synchronized (_syncRoot)
+        if (_passNotified == null)
         {
-            if (_notifyHandlersSnapshot == null && _notifyHandlers != null)
+            _passNotified = new Action.Type1<Progress>()
             {
-                _notifyHandlersSnapshot = new ArrayList<Action.Type1<Progress>>();
-                for (Action.Type1<Progress> notifyHandler : _notifyHandlers)
-                {
-                	_notifyHandlersSnapshot.add(notifyHandler);
-                }                
-            }
-            notifyHandlers = _notifyHandlersSnapshot;
+				@Override public void raise(Progress progress) {
+					
+				}                
+            };
         }
-        if (notifyHandlers == null) return;
+        return _passNotified;
+    }
 
-        // notify
-        for (Action.Type1<Progress> notifyHandler : notifyHandlers)
-        {
-        	try {
-				notifyHandler.raise(progress);
-        	} catch (Exception ex) {
-				throw new IllegalStateException(ex.getMessage(), ex.getCause());
-			}
-        }
+
+    // resolve
+    public void resolve()
+    {
+    	// resolve
+    	this.resolveBase(null);
+    }
+    
+    
+    // then
+    public Promise then(final Action.Type0 onResolved)
+    {
+    	return this.pushThen(
+			new Func.Type0<Object>() { @Override public Object raise() throws Exception { onResolved.raise(); return null; }}, ResultType.Empty,
+			this.passRejected(), ResultType.Empty,
+			this.passNotified()
+    	);
+    }
+    
+    public Promise then(final Action.Type0 onResolved, final Action.Type1<Exception> onRejected)
+	{ 
+		return this.pushThen(
+			new Func.Type0<Object>() { @Override public Object raise() throws Exception { onResolved.raise(); return null; }}, ResultType.Empty,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) throws Exception { onRejected.raise(error); return null; }}, ResultType.Empty,
+			this.passNotified()
+    	);
+	};	
+	
+	public Promise then(final Action.Type0 onResolved, final Action.Type1<Exception> onRejected, final Action.Type1<Progress> onNotified)
+	{ 
+		return this.pushThen(
+			new Func.Type0<Object>() { @Override public Object raise() throws Exception { onResolved.raise(); return null; }}, ResultType.Empty,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) throws Exception { onRejected.raise(error); return null; }}, ResultType.Empty,
+			onNotified	
+    	);
+	};	
+	
+	public Promise thenPromise(final Func.Type0<Promise> onResolved)
+    {
+		return this.pushThen(
+			new Func.Type0<Object>() { @Override public Object raise() throws Exception { return onResolved.raise(); }}, ResultType.EmptyPromise,
+			this.passRejected(), ResultType.Empty,
+			this.passNotified()
+    	);
+    }
+
+	
+	// thenNew
+    public <TNewResult> ResultPromise<TNewResult> thenNew(final Func.Type0<TNewResult> onResolved)
+    {
+    	return this.pushThenNew(
+			new Func.Type0<Object>() { @Override public Object raise() throws Exception { return onResolved.raise(); }}, ResultType.New,
+			this.passRejected(), ResultType.Empty,
+			this.passNotified()
+    	);
+    }
+
+    public <TNewResult> ResultPromise<TNewResult> thenNewPromise(final Func.Type0<ResultPromise<TNewResult>> onResolved)
+    {
+    	return this.pushThenNew(
+			new Func.Type0<Object>() { @Override public Object raise() throws Exception { return onResolved.raise(); }}, ResultType.NewPromise,
+			this.passRejected(), ResultType.Empty,
+			this.passNotified()
+    	);
+    }
+
+    
+    // catch
+    public Promise fail(final Action.Type1<Exception> onRejected)
+    {
+    	return this.pushThen(
+    		this.passResolved(), ResultType.Empty,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) throws Exception { onRejected.raise(error); return null; }}, ResultType.Empty,
+			this.passNotified()
+    	);
+    }
+
+    public Promise failPromise(final Func.Type1<Exception, Promise> onRejected)
+    {
+    	return this.pushThen(
+    		this.passResolved(), ResultType.Empty,
+    		new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) throws Exception { return onRejected.raise(error); }}, ResultType.EmptyPromise,
+			this.passNotified()
+    	);
+    }
+    
+    
+    // catchNew
+    public <TNewResult> PromiseBase<TNewResult> failNew(final Func.Type1<Exception, TNewResult> onRejected)
+    {
+    	return this.pushThenNew(
+    		this.passResolved(), ResultType.Empty,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) throws Exception { return onRejected.raise(error); }}, ResultType.New,
+			this.passNotified()
+    	);
+    }
+
+    public <TNewResult> PromiseBase<TNewResult> failNewPromise(final Func.Type1<Exception, PromiseBase<TNewResult>> onRejected)
+    {
+    	return this.pushThenNew(
+    		this.passResolved(), ResultType.Empty,
+			new Func.Type1<Exception, Object>() { @Override public Object raise(Exception error) throws Exception { return onRejected.raise(error); }}, ResultType.NewPromise,
+			this.passNotified()
+    	);
+    }
+
+    
+    // progress
+    public Promise progress(Action.Type1<Progress> onNotified)
+    {
+    	return this.pushThen(
+    		this.passResolved(), ResultType.Empty,
+    		this.passRejected(), ResultType.Empty,
+    		onNotified
+    	);
     }
 }

@@ -6,190 +6,412 @@ using System.Threading.Tasks;
 
 namespace CLK.Promises
 {
-    public abstract class Promise<TResult>
+    public class Promise : PromiseBase<Object>
     {
-        // Enumerations
-        private enum PromiseState
-        {
-            Pending,  // unresolved  
-            Resolved, // has-resolution
-            Rejected, // has-rejection
-        };
-
-        protected enum ResultType
-        {
-            Empty,
-            EmptyPromise,
-            New,
-            NewPromise,
-        }
-
-
         // Fields
-        private Object _syncRoot = new Object();
+        private Func<Object> _passResolved = null;
 
-        private PromiseState _state = PromiseState.Pending;
+        private Func<Exception, Object> _passRejected = null;
 
-        private TResult _result = default(TResult);
-
-        private Exception _error = null;
-
-        private List<Action<TResult>> _resolveHandlers = null;
-
-        private List<Action<Exception>> _rejectHandlers = null;
-
-        private List<Action<Progress>> _notifyHandlers = null;
-
-        private List<Action<Progress>> _notifyHandlersSnapshot = null;
+        private Action<Progress> _passNotified = null;
 
 
-        // Methods 
-        protected void Push(Action<TResult> resolveHandler, Action<Exception> rejectHandler, Action<Progress> notifyHandler)
+        // Methods 	
+        private Promise PushThen(
+            Func<Object> onResolved, ResultType onResolvedResultType,
+            Func<Exception, Object> onRejected, ResultType onRejectedResultType,
+            Action<Progress> onNotified)
         {
-            #region Contracts
+            // Promise
+            Promise thenPromise = new Promise();
 
-            if (resolveHandler == null) throw new ArgumentNullException();
-            if (rejectHandler == null) throw new ArgumentNullException();
-            if (notifyHandler == null) throw new ArgumentNullException();
-
-            #endregion
-
-            // Sync         
-            lock (_syncRoot)
-            {
-                // ResolveHandler
-                if (_state == PromiseState.Pending)
+            // ResolveHandler
+            Action<Object> resolveHandler = delegate (Object result) {
+                try
                 {
-                    if (_resolveHandlers == null)
+                    // Execute
+                    Object resultObject = onResolved();
+
+                    // Distribute
+                    switch (onResolvedResultType)
                     {
-                        _resolveHandlers = new List<Action<TResult>>();
-                    }
-                    _resolveHandlers.Add(resolveHandler);
-                }
+                        case ResultType.Empty:
+                            thenPromise.Resolve();
+                            break;
 
-                // RejectHandler
-                if (_state == PromiseState.Pending)
+                        case ResultType.EmptyPromise:
+                            if (resultObject != null)
+                            {
+                                ((Promise)resultObject).Then(
+                                    delegate () { thenPromise.Resolve(); },
+                                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
+                                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                                );
+                            }
+                            else { throw new Exception("Invalid Result"); }
+                            break;
+
+                        default:
+                            throw new Exception("Invalid Result Type");
+                    }
+                }
+                catch (Exception ex)
                 {
-                    if (_rejectHandlers == null)
+                    thenPromise.Reject(ex);
+                }
+            };
+
+            // RejectHandler
+            Action<Exception> rejectHandler = delegate (Exception error)
+            {
+                try
+                {
+                    // Execute
+                    Object resultObject = onRejected(error);
+
+                    // Distribute
+                    switch (onRejectedResultType)
                     {
-                        _rejectHandlers = new List<Action<Exception>>();
+                        case ResultType.Empty:
+                            thenPromise.Resolve();
+                            break;
+
+                        case ResultType.EmptyPromise:
+                            if (resultObject != null)
+                            {
+                                ((Promise)resultObject).Then(
+                                    delegate () { thenPromise.Resolve(); },
+                                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
+                                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                                );
+                            }
+                            else { throw new Exception("Invalid Result"); }
+                            break;
+
+                        default:
+                            throw new Exception("Invalid Result Type");
                     }
-                    _rejectHandlers.Add(rejectHandler);
                 }
-
-                // NotifyHandler
-                if (_notifyHandlers == null)
+                catch (Exception ex)
                 {
-                    _notifyHandlers = new List<Action<Progress>>();
+                    thenPromise.Reject(ex);
                 }
-                _notifyHandlers.Add(notifyHandler);
-                _notifyHandlersSnapshot = null;
+            };
 
-                // Pending
-                if (_state == PromiseState.Pending)
+            // NotifyHandler
+            Action<Progress> notifyHandler = delegate (Progress progress)
+            {
+                try
                 {
-                    return;
+                    // Execute
+                    onNotified(progress);
+
+                    // Distribute
+                    thenPromise.Notify(progress);
                 }
-            }
+                catch (Exception ex)
+                {
+                    thenPromise.Reject(ex);
+                };
+            };
 
-            // Resolved
-            if (_state == PromiseState.Resolved)
-            {
-                resolveHandler(_result);
-            }
+            // Push
+            this.Push(resolveHandler, rejectHandler, notifyHandler);
 
-            // Rejected
-            if (_state == PromiseState.Rejected)
-            {
-                rejectHandler(_error);
-            }
+            // Return
+            return thenPromise;
         }
 
-        protected void ResolveBase(TResult result)
+        private ResultPromise<TNewResult> PushThenNew<TNewResult>(
+                Func<Object> onResolved, ResultType onResolvedResultType,
+                Func<Exception, Object> onRejected, ResultType onRejectedResultType,
+                Action<Progress> onNotified)
         {
-            // Sync
-            lock (_syncRoot)
+            // Promise
+            ResultPromise<TNewResult> thenPromise = new ResultPromise<TNewResult>();
+
+            // ResolveHandler
+            Action<Object> resolveHandler = delegate (Object result)
             {
-                // State
-                if (_state != PromiseState.Pending) return;
-                _state = PromiseState.Resolved;
+                try
+                {
+                    // Execute
+                    Object resultObject = onResolved();
 
-                // Results
-                _result = result;
-                _error = null;
+                    // Distribute
+                    switch (onResolvedResultType)
+                    {
+                        case ResultType.Empty:
+                            thenPromise.Resolve(default(TNewResult));
+                            break;
+
+                        case ResultType.EmptyPromise:
+                            if (resultObject != null)
+                            {
+                                ((Promise)resultObject).Then(
+                                    delegate () { thenPromise.Resolve(default(TNewResult)); },
+                                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
+                                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                                );
+                            }
+                            else { throw new Exception("Invalid Result"); }
+                            break;
+
+                        case ResultType.New:
+                            thenPromise.Resolve((TNewResult)resultObject);
+                            break;
+
+                        case ResultType.NewPromise:
+                            if (resultObject != null)
+                            {
+                                ((ResultPromise<TNewResult>)resultObject).Then(
+                                    delegate (TNewResult thenResult) { thenPromise.Resolve(thenResult); },
+                                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
+                                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                                );
+                            }
+                            else { throw new Exception("Invalid Result"); }
+                            break;
+
+                        default:
+                            throw new Exception("Invalid Result Type");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    thenPromise.Reject(ex);
+                }
+            };
+
+            // RejectHandler
+            Action<Exception> rejectHandler = delegate (Exception error)
+            {
+                try
+                {
+                    // Execute
+                    Object resultObject = onRejected(error);
+
+                    // Distribute
+                    switch (onRejectedResultType)
+                    {
+                        case ResultType.Empty:
+                            thenPromise.Resolve(default(TNewResult));
+                            break;
+
+                        case ResultType.EmptyPromise:
+                            if (resultObject != null)
+                            {
+                                ((Promise)resultObject).Then(
+                                    delegate () { thenPromise.Resolve(default(TNewResult)); },
+                                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
+                                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                                );
+                            }
+                            else { throw new Exception("Invalid Result"); }
+                            break;
+
+                        case ResultType.New:
+                            thenPromise.Resolve((TNewResult)resultObject);
+                            break;
+
+                        case ResultType.NewPromise:
+                            if (resultObject != null)
+                            {
+                                ((ResultPromise<TNewResult>)resultObject).Then(
+                                    delegate (TNewResult thenResult) { thenPromise.Resolve(thenResult); },
+                                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
+                                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                                );
+                            }
+                            else { throw new Exception("Invalid Result"); }
+                            break;
+
+                        default:
+                            throw new Exception("Invalid Result Type");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    thenPromise.Reject(ex);
+                }
+            };
+
+            // NotifyHandler
+            Action<Progress> notifyHandler = delegate (Progress progress)
+            {
+                try
+                {
+                    // Execute
+                    onNotified(progress);
+
+                    // Distribute
+                    thenPromise.Notify(progress);
+                }
+                catch (Exception ex)
+                {
+                    thenPromise.Reject(ex);
+                }
+            };
+
+            // Push
+            this.Push(resolveHandler, rejectHandler, notifyHandler);
+
+            // Return
+            return thenPromise;
+        }
+
+
+        private Func<Object> PassResolved()
+        {
+            if (_passResolved == null)
+            {
+                _passResolved = delegate ()
+                {
+                    return null;
+                };
             }
+            return _passResolved;
+        }
 
-            // Handlers
-            List<Action<TResult>> resolveHandlers = _resolveHandlers;
-            if (resolveHandlers == null) return;
+        private Func<Exception, Object> PassRejected()
+        {
+            if (_passRejected == null)
+            {
+                _passRejected = delegate (Exception error)
+                {
+                    throw error;
+                };
+            }
+            return _passRejected;
+        }
 
+        private Action<Progress> PassNotified()
+        {
+            if (_passNotified == null)
+            {
+                _passNotified = delegate (Progress progress)
+                {
+
+                };
+            }
+            return _passNotified;
+        }
+
+
+        // Resolve
+        public void Resolve()
+        {
             // Resolve
-            foreach (Action<TResult> resolveHandler in resolveHandlers)
-            {
-                resolveHandler(result);
-            }
+            this.ResolveBase(null);
         }
 
-        public void Reject(Exception error)
+
+        // Then
+        public Promise Then(Action onResolved)
         {
-            #region Contracts
-
-            if (error == null) throw new ArgumentNullException();
-
-            #endregion
-
-            // Sync            
-            lock (_syncRoot)
-            {
-                // State
-                if (_state != PromiseState.Pending) return;
-                _state = PromiseState.Rejected;
-
-                // Result
-                _result = default(TResult);
-                _error = error;
-            }
-
-            // Handlers
-            List<Action<Exception>> rejectHandlers = _rejectHandlers;
-            if (rejectHandlers == null) return;
-
-            // Reject
-            foreach (Action<Exception> rejectHandler in rejectHandlers)
-            {
-                rejectHandler(error);
-            }
+            return this.PushThen(
+                delegate () { onResolved(); return null; }, ResultType.Empty,
+                this.PassRejected(), ResultType.Empty,
+                this.PassNotified()
+            );
         }
 
-        public void Notify(Progress progress)
+        public Promise Then(Action onResolved, Action<Exception> onRejected)
         {
-            #region Contracts
+            return this.PushThen(
+                delegate () { onResolved(); return null; }, ResultType.Empty,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.Empty,
+                this.PassNotified()
+            );
+        }
 
-            if (progress == null) throw new ArgumentNullException();
+        public Promise Then(Action onResolved, Action<Exception> onRejected, Action<Progress> onNotified)
+        {
+            return this.PushThen(
+                delegate () { onResolved(); return null; }, ResultType.Empty,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.Empty,
+                onNotified
+            );
+        }
 
-            #endregion
+        public Promise ThenPromise(Func<Promise> onResolved)
+        {
+            return this.PushThen(
+                delegate () { return onResolved(); }, ResultType.EmptyPromise,
+                this.PassRejected(), ResultType.Empty,
+                this.PassNotified()
+            );
+        }
 
-            // Handlers
-            List<Action<Progress>> notifyHandlers = null;
-            lock (_syncRoot)
-            {
-                if (_notifyHandlersSnapshot == null && _notifyHandlers != null)
-                {
-                    _notifyHandlersSnapshot = new List<Action<Progress>>();
-                    foreach (Action<Progress> notifyHandler in _notifyHandlers)
-                    {
-                        _notifyHandlersSnapshot.Add(notifyHandler);
-                    }
-                }
-                notifyHandlers = _notifyHandlersSnapshot;
-            }
-            if (notifyHandlers == null) return;
 
-            // Notify
-            foreach (Action<Progress> notifyHandler in notifyHandlers)
-            {
-                notifyHandler(progress);
-            }
+        // ThenNew
+        public ResultPromise<TNewResult> ThenNew<TNewResult>(Func<TNewResult> onResolved)
+        {
+            return this.PushThenNew<TNewResult>(
+                delegate () { return onResolved(); }, ResultType.New,
+                this.PassRejected(), ResultType.Empty,
+                this.PassNotified()
+            );
+        }
+
+        public ResultPromise<TNewResult> ThenNewPromise<TNewResult>(Func<ResultPromise<TNewResult>> onResolved)
+        {
+            return this.PushThenNew<TNewResult>(
+                delegate () { return onResolved(); }, ResultType.NewPromise,
+                this.PassRejected(), ResultType.Empty,
+                this.PassNotified()
+            );
+        }
+
+
+        // Catch
+        public Promise Fail(Action<Exception> onRejected)
+        {
+            return this.PushThen(
+                this.PassResolved(), ResultType.Empty,
+                delegate (Exception error) { onRejected(error); return null; }, ResultType.Empty,
+                this.PassNotified()
+            );
+        }
+
+        public Promise FailPromise(Func<Exception, Promise> onRejected)
+        {
+            return this.PushThen(
+                this.PassResolved(), ResultType.Empty,
+                delegate (Exception error) { return onRejected(error); }, ResultType.EmptyPromise,
+                this.PassNotified()
+            );
+        }
+
+
+        // CatchNew
+        public PromiseBase<TNewResult> FailNew<TNewResult>(Func<Exception, TNewResult> onRejected)
+        {
+            return this.PushThenNew<TNewResult>(
+                this.PassResolved(), ResultType.Empty,
+                delegate (Exception error) { return onRejected(error); }, ResultType.New,
+                this.PassNotified()
+            );
+        }
+
+        public PromiseBase<TNewResult> FailNewPromise<TNewResult>(Func<Exception, PromiseBase<TNewResult>> onRejected)
+        {
+            return this.PushThenNew<TNewResult>(
+                this.PassResolved(), ResultType.Empty,
+                delegate (Exception error) { return onRejected(error); }, ResultType.NewPromise,
+                this.PassNotified()
+            );
+        }
+
+
+        // Progress
+        public Promise Progress(Action<Progress> onNotified)
+        {
+            return this.PushThen(
+                this.PassResolved(), ResultType.Empty,
+                this.PassRejected(), ResultType.Empty,
+                onNotified
+            );
         }
     }
 }

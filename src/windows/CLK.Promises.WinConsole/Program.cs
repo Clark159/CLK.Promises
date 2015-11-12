@@ -20,7 +20,7 @@ namespace CLK.Promises.WinConsole
         static void PromiseTests()
         {
             // Promise
-            var promise = new EmptyPromise();
+            var promise = new Promise();
 
             promise
 
@@ -33,7 +33,7 @@ namespace CLK.Promises.WinConsole
                 // ThenPromise - Resolve
                 .ThenPromise(delegate ()
                 {
-                    var newPromise = new EmptyPromise();
+                    var newPromise = new Promise();
                     newPromise.Resolve();
                     return newPromise;
                 })
@@ -45,7 +45,7 @@ namespace CLK.Promises.WinConsole
                 // ThenPromise - Reject
                 .ThenPromise(delegate ()
                 {
-                    var newPromise = new EmptyPromise();
+                    var newPromise = new Promise();
                     newPromise.Reject(new Exception("CCC"));
                     return newPromise;
                 })

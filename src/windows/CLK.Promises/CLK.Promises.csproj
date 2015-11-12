@@ -41,9 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EmptyPromise.cs" />
-    <Compile Include="Progress.cs" />
     <Compile Include="Promise.cs" />
+    <Compile Include="Progress.cs" />
+    <Compile Include="PromiseBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResultPromise.cs" />
   </ItemGroup>

@@ -2,7 +2,7 @@ package com.clk.promises.mobileapp;
 
 import com.clk.Action;
 import com.clk.Func;
-import com.clk.promises.EmptyPromise;
+import com.clk.promises.Promise;
 import com.clk.promises.Progress;
 import com.clk.promises.ResultPromise;
 
@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
 	private void promiseTests()	{
 		
 		// promise
-    	EmptyPromise promise = new EmptyPromise();
+    	Promise promise = new Promise();
     	
     	promise
     		
@@ -44,9 +44,9 @@ public class MainActivity extends Activity {
     		})
 	        
 	        // thenPromise - resolve
-            .thenPromise(new Func.Type0<EmptyPromise>(){
-				@Override public EmptyPromise raise() {
-					EmptyPromise newPromise = new EmptyPromise();
+            .thenPromise(new Func.Type0<Promise>(){
+				@Override public Promise raise() {
+					Promise newPromise = new Promise();
                     newPromise.resolve();
                     return newPromise;
 				}            	
@@ -58,9 +58,9 @@ public class MainActivity extends Activity {
     		})
             
             // thenPromise - reject
-            .thenPromise(new Func.Type0<EmptyPromise>(){
-				@Override public EmptyPromise raise() {
-					EmptyPromise newPromise = new EmptyPromise();
+            .thenPromise(new Func.Type0<Promise>(){
+				@Override public Promise raise() {
+					Promise newPromise = new Promise();
 					newPromise.reject(new Exception("CCC"));
                     return newPromise;
 				}            	
