@@ -46,15 +46,18 @@ public class EmptyPromise extends Promise<Object> {
 	                        break;
                         
                         case EmptyPromise:
-                        	((EmptyPromise)resultObject).then(
-    	                		new Action.Type0() { @Override public void raise() {  thenPromise.resolve(); }},	
-    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
-    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
-    	                    );
+                        	if (resultObject != null) {
+	                        	((EmptyPromise)resultObject).then(
+	    	                		new Action.Type0() { @Override public void raise() {  thenPromise.resolve(); }},	
+	    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
+	    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
+	    	                    );
+                        	}
+                        	else { throw new Exception("Invalid Result"); }
                             break;
                         	
                         default:
-                            throw new Exception("Invalid Result");
+                            throw new Exception("Invalid Result Type");
                     }
 	            }
 	            catch (Exception ex)
@@ -81,15 +84,18 @@ public class EmptyPromise extends Promise<Object> {
 	                        break;
                         
                         case EmptyPromise:
-                        	((EmptyPromise)resultObject).then(
-    	                		new Action.Type0() { @Override public void raise() {  thenPromise.resolve(); }},	
-    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
-    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
-    	                    );
+                        	if (resultObject != null) {
+	                        	((EmptyPromise)resultObject).then(
+	    	                		new Action.Type0() { @Override public void raise() {  thenPromise.resolve(); }},	
+	    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
+	    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
+	    	                    );
+                        	}
+                        	else { throw new Exception("Invalid Result"); }
                             break;
 
                         default:
-                            throw new Exception("Invalid Result");
+                            throw new Exception("Invalid Result Type");
                     }
 	            }
 	            catch (Exception ex)
@@ -156,11 +162,14 @@ public class EmptyPromise extends Promise<Object> {
 	                        break;
                         
                         case EmptyPromise:
-                        	((EmptyPromise)resultObject).then(
-    	                		new Action.Type0() { @Override public void raise() {  thenPromise.resolve(null); }},	
-    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
-    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
-    	                    );
+                        	if (resultObject != null) {
+	                        	((EmptyPromise)resultObject).then(
+	    	                		new Action.Type0() { @Override public void raise() {  thenPromise.resolve(null); }},	
+	    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
+	    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
+	    	                    );
+                        	}
+                        	else { throw new Exception("Invalid Result"); }
                             break;
                             
                         case New:
@@ -168,15 +177,18 @@ public class EmptyPromise extends Promise<Object> {
                             break;
                             
                         case NewPromise:
-                        	((ResultPromise<TNewResult>)resultObject).then(
-    	                		new Action.Type1<TNewResult>() { @Override public void raise(TNewResult thenResult) {  thenPromise.resolve(thenResult); }},	
-    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
-    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
-    	                    );
+                        	if (resultObject != null) {
+	                        	((ResultPromise<TNewResult>)resultObject).then(
+	    	                		new Action.Type1<TNewResult>() { @Override public void raise(TNewResult thenResult) {  thenPromise.resolve(thenResult); }},	
+	    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
+	    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
+	    	                    );
+                        	}
+                        	else { throw new Exception("Invalid Result"); }
                         	break;
                         	
                         default:
-                            throw new Exception("Invalid Result");
+                            throw new Exception("Invalid Result Type");
                     }
 	            }
 	            catch (Exception ex)
@@ -204,11 +216,14 @@ public class EmptyPromise extends Promise<Object> {
 	                        break;
                         
                         case EmptyPromise:
-                        	((EmptyPromise)resultObject).then(
-    	                		new Action.Type0() { @Override public void raise() {  thenPromise.resolve(null); }},	
-    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
-    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
-    	                    );
+                        	if (resultObject != null) {
+	                        	((EmptyPromise)resultObject).then(
+	    	                		new Action.Type0() { @Override public void raise() {  thenPromise.resolve(null); }},	
+	    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
+	    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
+	    	                    );
+                        	}
+                        	else { throw new Exception("Invalid Result"); }
                             break;
                             
                         case New:
@@ -216,15 +231,18 @@ public class EmptyPromise extends Promise<Object> {
                             break;
                             
                         case NewPromise:
-                        	((ResultPromise<TNewResult>)resultObject).then(
-    	                		new Action.Type1<TNewResult>() { @Override public void raise(TNewResult thenResult) {  thenPromise.resolve(thenResult); }},	
-    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
-    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
-    	                    );
+                        	if (resultObject != null) {
+	                        	((ResultPromise<TNewResult>)resultObject).then(
+	    	                		new Action.Type1<TNewResult>() { @Override public void raise(TNewResult thenResult) {  thenPromise.resolve(thenResult); }},	
+	    	                        new Action.Type1<Exception>(){ @Override public void raise(Exception thenError) { thenPromise.reject(thenError); }},
+	    	                        new Action.Type1<Progress>(){ @Override public void raise(Progress thenProgress) { thenPromise.notify(thenProgress); }}
+	    	                    );
+                        	}
+                        	else { throw new Exception("Invalid Result"); }
                         	break;
 
                         default:
-                            throw new Exception("Invalid Result");
+                            throw new Exception("Invalid Result Type");
                     }
 	            }
 	            catch (Exception ex)

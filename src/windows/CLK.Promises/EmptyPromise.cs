@@ -40,15 +40,19 @@ namespace CLK.Promises
                             break;
 
                         case ResultType.EmptyPromise:
-                            ((EmptyPromise)resultObject).Then(
-                                delegate () { thenPromise.Resolve(); },
-                                delegate (Exception thenError) { thenPromise.Reject(thenError); },
-                                delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
-                            );
+                            if (resultObject != null)
+                            {
+                                ((EmptyPromise)resultObject).Then(
+                                    delegate () { thenPromise.Resolve(); },
+                                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
+                                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                                );
+                            }
+                            else { throw new Exception("Invalid Result"); }
                             break;
 
                         default:
-                            throw new Exception("Invalid Result");
+                            throw new Exception("Invalid Result Type");
                     }
                 }
                 catch (Exception ex)
@@ -73,15 +77,19 @@ namespace CLK.Promises
                             break;
 
                         case ResultType.EmptyPromise:
-                            ((EmptyPromise)resultObject).Then(
-                                delegate () { thenPromise.Resolve(); },
-                                delegate (Exception thenError) { thenPromise.Reject(thenError); },
-                                delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
-                            );
+                            if (resultObject != null)
+                            {
+                                ((EmptyPromise)resultObject).Then(
+                                    delegate () { thenPromise.Resolve(); },
+                                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
+                                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                                );
+                            }
+                            else { throw new Exception("Invalid Result"); }
                             break;
 
                         default:
-                            throw new Exception("Invalid Result");
+                            throw new Exception("Invalid Result Type");
                     }
                 }
                 catch (Exception ex)
@@ -138,11 +146,15 @@ namespace CLK.Promises
                             break;
 
                         case ResultType.EmptyPromise:
-                            ((EmptyPromise)resultObject).Then(
-                                delegate () { thenPromise.Resolve(default(TNewResult)); },
-                                delegate (Exception thenError) { thenPromise.Reject(thenError); },
-                                delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
-                            );
+                            if (resultObject != null)
+                            {
+                                ((EmptyPromise)resultObject).Then(
+                                    delegate () { thenPromise.Resolve(default(TNewResult)); },
+                                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
+                                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                                );
+                            }
+                            else { throw new Exception("Invalid Result"); }
                             break;
 
                         case ResultType.New:
@@ -150,15 +162,19 @@ namespace CLK.Promises
                             break;
 
                         case ResultType.NewPromise:
-                            ((ResultPromise<TNewResult>)resultObject).Then(
-                                delegate (TNewResult thenResult) { thenPromise.Resolve(thenResult); },
-                                delegate (Exception thenError) { thenPromise.Reject(thenError); },
-                                delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
-                            );
+                            if (resultObject != null)
+                            {
+                                ((ResultPromise<TNewResult>)resultObject).Then(
+                                    delegate (TNewResult thenResult) { thenPromise.Resolve(thenResult); },
+                                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
+                                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                                );
+                            }
+                            else { throw new Exception("Invalid Result"); }
                             break;
 
                         default:
-                            throw new Exception("Invalid Result");
+                            throw new Exception("Invalid Result Type");
                     }
                 }
                 catch (Exception ex)
@@ -183,11 +199,15 @@ namespace CLK.Promises
                             break;
 
                         case ResultType.EmptyPromise:
-                            ((EmptyPromise)resultObject).Then(
-                                delegate () { thenPromise.Resolve(default(TNewResult)); },
-                                delegate (Exception thenError) { thenPromise.Reject(thenError); },
-                                delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
-                            );
+                            if (resultObject != null)
+                            {
+                                ((EmptyPromise)resultObject).Then(
+                                    delegate () { thenPromise.Resolve(default(TNewResult)); },
+                                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
+                                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                                );
+                            }
+                            else { throw new Exception("Invalid Result"); }
                             break;
 
                         case ResultType.New:
@@ -195,15 +215,19 @@ namespace CLK.Promises
                             break;
 
                         case ResultType.NewPromise:
-                            ((ResultPromise<TNewResult>)resultObject).Then(
-                                delegate (TNewResult thenResult) { thenPromise.Resolve(thenResult); },
-                                delegate (Exception thenError) { thenPromise.Reject(thenError); },
-                                delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
-                            );
+                            if (resultObject != null)
+                            {
+                                ((ResultPromise<TNewResult>)resultObject).Then(
+                                    delegate (TNewResult thenResult) { thenPromise.Resolve(thenResult); },
+                                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
+                                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                                );
+                            }
+                            else { throw new Exception("Invalid Result"); }
                             break;
 
                         default:
-                            throw new Exception("Invalid Result");
+                            throw new Exception("Invalid Result Type");
                     }
                 }
                 catch (Exception ex)
