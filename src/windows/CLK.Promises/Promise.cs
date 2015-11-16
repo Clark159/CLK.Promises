@@ -22,6 +22,14 @@ namespace CLK.Promises
             Func<Exception, Object> onRejected, ResultType onRejectedResultType,
             Action<Progress> onNotified)
         {
+            #region Contracts
+
+            if (onResolved == null) throw new ArgumentNullException();
+            if (onRejected == null) throw new ArgumentNullException();
+            if (onNotified == null) throw new ArgumentNullException();
+
+            #endregion
+
             // Promise
             Promise thenPromise = new Promise();
 
@@ -127,6 +135,14 @@ namespace CLK.Promises
                 Func<Exception, Object> onRejected, ResultType onRejectedResultType,
                 Action<Progress> onNotified)
         {
+            #region Contracts
+
+            if (onResolved == null) throw new ArgumentNullException();
+            if (onRejected == null) throw new ArgumentNullException();
+            if (onNotified == null) throw new ArgumentNullException();
+
+            #endregion
+
             // Promise
             ResultPromise<TNewResult> thenPromise = new ResultPromise<TNewResult>();
 
@@ -362,7 +378,7 @@ namespace CLK.Promises
                 this.PassNotified()
             );
         }
-
+        
 
         // Catch
         public Promise Fail(Action<Exception> onRejected)
@@ -394,7 +410,7 @@ namespace CLK.Promises
             );
         }
 
-        public PromiseBase<TNewResult> FailNewPromise<TNewResult>(Func<Exception, PromiseBase<TNewResult>> onRejected)
+        public PromiseBase<TNewResult> FailNewPromise<TNewResult>(Func<Exception, ResultPromise<TNewResult>> onRejected)
         {
             return this.PushThenNew<TNewResult>(
                 this.PassResolved(), ResultType.Empty,
@@ -412,6 +428,99 @@ namespace CLK.Promises
                 this.PassRejected(), ResultType.Empty,
                 onNotified
             );
+        }
+
+
+        // All
+        public static Promise AllPromise(List<Promise> promiseList)
+        {
+            #region Contracts
+
+            if (promiseList == null) throw new ArgumentNullException();
+
+            #endregion
+
+            // Promise
+            Promise thenPromise = new Promise();
+
+            // AllNewPromise
+            int allResultCount = 0;
+            Action<int> thenAction = delegate (int promiseIndex)
+            {
+                promiseList[promiseIndex].Then(
+                    delegate ()
+                    {
+                        allResultCount++;
+                        if (allResultCount == promiseList.Count) thenPromise.Resolve();
+                    },
+                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
+                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                );
+            };
+
+            // Execute           
+            if (promiseList.Count != 0)
+            {
+                for (int i = 0; i < promiseList.Count; i++)
+                {
+                    thenAction(i);
+                }
+            }
+            else
+            {
+                thenPromise.Resolve();
+            }
+
+            // Return
+            return thenPromise;
+        }
+
+        public static ResultPromise<List<TNewResult>> AllNewPromise<TNewResult>(List<ResultPromise<TNewResult>> promiseList)
+        {
+            #region Contracts
+
+            if (promiseList == null) throw new ArgumentNullException();
+
+            #endregion
+
+            // Promise
+            ResultPromise<List<TNewResult>> thenPromise = new ResultPromise<List<TNewResult>>();
+
+            // ResultArray
+            List<TNewResult> allResultArray = new List<TNewResult>();
+            for (int i = 0; i < promiseList.Count; i++) allResultArray.Add(default(TNewResult));
+
+            // AllNewPromise
+            int allResultCount = 0;            
+            Action<int> thenAction = delegate (int promiseIndex)
+            {
+                promiseList[promiseIndex].Then(
+                    delegate (TNewResult thenResult)
+                    {
+                        allResultArray[promiseIndex] = thenResult;
+                        allResultCount++;                                     
+                        if (allResultCount == promiseList.Count) thenPromise.Resolve(allResultArray);
+                    },
+                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
+                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                );
+            };
+
+            // Execute           
+            if (promiseList.Count != 0)
+            {
+                for (int i = 0; i < promiseList.Count; i++)
+                {
+                    thenAction(i);
+                }
+            }
+            else
+            {
+                thenPromise.Resolve(allResultArray);
+            }
+
+            // Return
+            return thenPromise;
         }
     }
 }

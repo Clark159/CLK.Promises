@@ -1,6 +1,8 @@
 package com.clk.promises;
 
 
+import java.util.ArrayList;
+
 import com.clk.Action;
 import com.clk.Func;
 
@@ -436,5 +438,122 @@ public class Promise extends PromiseBase<Object> {
     		this.passRejected(), ResultType.Empty,
     		onNotified
     	);
+    }
+
+
+    // all
+    public static Promise allPromise(final ArrayList<Promise> promiseList)
+    {
+        // contracts
+        if (promiseList == null) throw new IllegalArgumentException();
+        
+        // Promise
+        final Promise thenPromise = new Promise();
+              
+        // AllNewPromise
+        final int[] allResultCount = new int[1]; allResultCount[0] = 0;        
+        Action.Type1<Integer> thenAction = 
+    		new Action.Type1<Integer>() {
+        		@Override public void raise(final Integer promiseIndex) throws Exception {
+        			promiseList.get(promiseIndex).then(					
+						new Action.Type0() {
+							@Override public void raise() throws Exception {
+								allResultCount[0]++;                                
+		                        if (allResultCount[0] == promiseList.size()) thenPromise.resolve();
+							}
+						},
+						new Action.Type1<Exception>() { 
+							@Override public void raise(Exception thenError) throws Exception { 
+								thenPromise.reject(thenError);
+							}
+						},
+						new Action.Type1<Progress>() { 
+							@Override public void raise(Progress thenProgress) throws Exception { 
+								thenPromise.notify(thenProgress);
+							}
+						}
+		            );        			
+				}        	
+	        };
+        	
+	    // Execute           
+        if (promiseList.size() != 0)
+        {
+            for (int i = 0; i < promiseList.size(); i++)
+            {
+                try {
+					thenAction.raise(i);
+				} catch (Exception ex) {
+					throw new IllegalStateException(ex.getMessage(), ex.getCause());
+				}
+            }
+        }
+        else
+        {
+        	thenPromise.resolve();
+        }
+        
+        // Return
+        return thenPromise;
+    }
+
+    public static <TNewResult> ResultPromise<ArrayList<TNewResult>> allNewPromise(final ArrayList<ResultPromise<TNewResult>> promiseList)
+    {
+        // contracts
+        if (promiseList == null) throw new IllegalArgumentException();
+        
+        // Promise
+        final ResultPromise<ArrayList<TNewResult>> thenPromise = new ResultPromise<ArrayList<TNewResult>>();
+              
+        // ResultArray
+        final ArrayList<TNewResult> allResultArray = new ArrayList<TNewResult>();
+        for (int i = 0; i < promiseList.size(); i++) allResultArray.add(null);
+        
+        // AllNewPromise
+        final int[] allResultCount = new int[1]; allResultCount[0] = 0;        
+        Action.Type1<Integer> thenAction = 
+    		new Action.Type1<Integer>() {				
+        		@Override public void raise(final Integer promiseIndex) throws Exception {
+        			promiseList.get(promiseIndex).then(					
+						new Action.Type1<TNewResult>() {
+							@Override public void raise(TNewResult thenResult) throws Exception {
+								allResultArray.set(promiseIndex, thenResult);
+								allResultCount[0]++;                                
+		                        if (allResultCount[0] == promiseList.size()) thenPromise.resolve(allResultArray);
+							}
+						},
+						new Action.Type1<Exception>() { 
+							@Override public void raise(Exception thenError) throws Exception { 
+								thenPromise.reject(thenError);
+							}
+						},
+						new Action.Type1<Progress>() { 
+							@Override public void raise(Progress thenProgress) throws Exception { 
+								thenPromise.notify(thenProgress);
+							}
+						}
+		            );        			
+				}        	
+	        };
+        	
+	    // Execute           
+        if (promiseList.size() != 0)
+        {
+            for (int i = 0; i < promiseList.size(); i++)
+            {
+                try {
+					thenAction.raise(i);
+				} catch (Exception ex) {
+					throw new IllegalStateException(ex.getMessage(), ex.getCause());
+				}
+            }
+        }
+        else
+        {
+        	thenPromise.resolve(allResultArray);
+        }
+        
+        // Return
+        return thenPromise;
     }
 }

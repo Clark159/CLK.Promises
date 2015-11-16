@@ -60,9 +60,9 @@ namespace CLK.Promises.WinConsole
                 {
                     return "DDD";
                 })
-                .Then(delegate (string message)
+                .Then(delegate (string result)
                 {
-                    Console.WriteLine(message);
+                    Console.WriteLine(result);
                 })
 
                 // ThenNewPromise - Resolve
@@ -72,9 +72,9 @@ namespace CLK.Promises.WinConsole
                     newPromise.Resolve("EEE");
                     return newPromise;
                 })
-                .Then(delegate (string message)
+                .Then(delegate (string result)
                 {
-                    Console.WriteLine(message);
+                    Console.WriteLine(result);
                 })
 
                 // ThenNewPromise - Reject
@@ -90,10 +90,34 @@ namespace CLK.Promises.WinConsole
                 })
 
 
+                // ========== All ==========
+                .ThenNewPromise<List<string>>(delegate ()
+                {
+                    List<ResultPromise<string>> promiseList = new List<ResultPromise<String>>();
+
+                    var promiseA = new ResultPromise<string>();
+                    promiseA.Resolve("GGG");
+                    promiseList.Add(promiseA);
+
+                    var promiseB = new ResultPromise<string>();
+                    promiseB.Resolve("HHH");
+                    promiseList.Add(promiseB);
+
+                    return Promise.AllNewPromise<string>(promiseList);
+                })
+                .Then(delegate (List<string> resultList)
+                {
+                    foreach(var result in resultList)
+                    {
+                        Console.WriteLine(result);
+                    }
+                })
+
+
                 // ========== Throw ==========
                 .Then(delegate ()
                 {
-                    throw new Exception("GGG");
+                    throw new Exception("III");
                 })
                 .Fail(delegate (Exception error)
                 {

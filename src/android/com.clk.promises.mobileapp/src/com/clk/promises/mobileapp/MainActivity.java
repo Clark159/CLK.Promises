@@ -1,5 +1,7 @@
 package com.clk.promises.mobileapp;
 
+import java.util.ArrayList;
+
 import com.clk.Action;
 import com.clk.Func;
 import com.clk.promises.Promise;
@@ -79,8 +81,8 @@ public class MainActivity extends Activity {
 				}            
             })
             .then(new Action.Type1<String>(){
-				@Override public void raise(String message) {
-					writeLine(message);
+				@Override public void raise(String result) {
+					writeLine(result);
 				}            	
             })
             
@@ -93,8 +95,8 @@ public class MainActivity extends Activity {
 				}            	
             })
             .then(new Action.Type1<String>(){
-				@Override public void raise(String message) {
-					writeLine(message);
+				@Override public void raise(String result) {
+					writeLine(result);
 				}            	
             })
                       
@@ -113,10 +115,36 @@ public class MainActivity extends Activity {
     		})
             
             
+            // ========== all ==========
+            .thenNewPromise(new Func.Type0<ResultPromise<ArrayList<String>>>(){
+				@Override public ResultPromise<ArrayList<String>> raise() {
+					
+					ArrayList<ResultPromise<String>> promiseList = new ArrayList<ResultPromise<String>>();
+					
+					ResultPromise<String> promiseA = new ResultPromise<String>();
+					promiseA.resolve("GGG");
+					promiseList.add(promiseA);
+					
+					ResultPromise<String> promiseB = new ResultPromise<String>();
+					promiseB.resolve("HHH");
+					promiseList.add(promiseB);
+					
+					return Promise.allNewPromise(promiseList);
+				}            	
+            })
+            .then(new Action.Type1<ArrayList<String>>(){
+				@Override public void raise(ArrayList<String> resultList) {
+					for(String result : resultList)
+                    {
+						writeLine(result);
+                    }
+				}            	
+            })
+            
             // ========== Throw ==========
             .then(new Action.Type0() {
 				@Override public void raise() throws Exception {
-					throw new Exception("GGG");
+					throw new Exception("III");
 				}    			
     		})
             .fail(new Action.Type1<Exception>(){

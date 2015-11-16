@@ -362,7 +362,7 @@ namespace CLK.Promises
 
 
         // ThenNew
-        public ResultPromise<TNewResult> thenNew<TNewResult>(Func<TResult, TNewResult> onResolved)
+        public ResultPromise<TNewResult> ThenNew<TNewResult>(Func<TResult, TNewResult> onResolved)
         {
             return this.PushThenNew<TNewResult>(
                 delegate (TResult result) { return onResolved(result); }, ResultType.New,
@@ -371,7 +371,7 @@ namespace CLK.Promises
             );
         }
 
-        public ResultPromise<TNewResult> thenNewPromise<TNewResult>(Func<TResult, ResultPromise<TNewResult>> onResolved)
+        public ResultPromise<TNewResult> ThenNewPromise<TNewResult>(Func<TResult, ResultPromise<TNewResult>> onResolved)
         {
             return this.PushThenNew<TNewResult>(
                 delegate (TResult result) { return onResolved(result); }, ResultType.NewPromise,
