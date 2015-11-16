@@ -448,28 +448,28 @@ public class Promise extends PromiseBase<Object> {
         if (promiseList == null) throw new IllegalArgumentException();
         
         // Promise
-        final Promise thenPromise = new Promise();
+        final Promise allPromise = new Promise();
               
         // AllNewPromise
-        final int[] allResultCount = new int[1]; allResultCount[0] = 0;        
+        final int[] thenResultCount = new int[1]; thenResultCount[0] = 0;        
         Action.Type1<Integer> thenAction = 
     		new Action.Type1<Integer>() {
-        		@Override public void raise(final Integer promiseIndex) throws Exception {
-        			promiseList.get(promiseIndex).then(					
+        		@Override public void raise(final Integer thenPromiseIndex) throws Exception {
+        			promiseList.get(thenPromiseIndex).then(					
 						new Action.Type0() {
 							@Override public void raise() throws Exception {
-								allResultCount[0]++;                                
-		                        if (allResultCount[0] == promiseList.size()) thenPromise.resolve();
+								thenResultCount[0]++;                                
+		                        if (thenResultCount[0] == promiseList.size()) allPromise.resolve();
 							}
 						},
 						new Action.Type1<Exception>() { 
 							@Override public void raise(Exception thenError) throws Exception { 
-								thenPromise.reject(thenError);
+								allPromise.reject(thenError);
 							}
 						},
 						new Action.Type1<Progress>() { 
 							@Override public void raise(Progress thenProgress) throws Exception { 
-								thenPromise.notify(thenProgress);
+								allPromise.notify(thenProgress);
 							}
 						}
 		            );        			
@@ -490,11 +490,11 @@ public class Promise extends PromiseBase<Object> {
         }
         else
         {
-        	thenPromise.resolve();
+        	allPromise.resolve();
         }
         
         // Return
-        return thenPromise;
+        return allPromise;
     }
 
     public static <TNewResult> ResultPromise<ArrayList<TNewResult>> allNewPromise(final ArrayList<ResultPromise<TNewResult>> promiseList)
@@ -503,33 +503,33 @@ public class Promise extends PromiseBase<Object> {
         if (promiseList == null) throw new IllegalArgumentException();
         
         // Promise
-        final ResultPromise<ArrayList<TNewResult>> thenPromise = new ResultPromise<ArrayList<TNewResult>>();
+        final ResultPromise<ArrayList<TNewResult>> allPromise = new ResultPromise<ArrayList<TNewResult>>();
               
         // ResultArray
-        final ArrayList<TNewResult> allResultArray = new ArrayList<TNewResult>();
-        for (int i = 0; i < promiseList.size(); i++) allResultArray.add(null);
+        final ArrayList<TNewResult> thenResultArray = new ArrayList<TNewResult>();
+        for (int i = 0; i < promiseList.size(); i++) thenResultArray.add(null);
         
         // AllNewPromise
-        final int[] allResultCount = new int[1]; allResultCount[0] = 0;        
+        final int[] thenResultCount = new int[1]; thenResultCount[0] = 0;        
         Action.Type1<Integer> thenAction = 
     		new Action.Type1<Integer>() {				
-        		@Override public void raise(final Integer promiseIndex) throws Exception {
-        			promiseList.get(promiseIndex).then(					
+        		@Override public void raise(final Integer thenPromiseIndex) throws Exception {
+        			promiseList.get(thenPromiseIndex).then(					
 						new Action.Type1<TNewResult>() {
 							@Override public void raise(TNewResult thenResult) throws Exception {
-								allResultArray.set(promiseIndex, thenResult);
-								allResultCount[0]++;                                
-		                        if (allResultCount[0] == promiseList.size()) thenPromise.resolve(allResultArray);
+								thenResultArray.set(thenPromiseIndex, thenResult);
+								thenResultCount[0]++;                                
+		                        if (thenResultCount[0] == promiseList.size()) allPromise.resolve(thenResultArray);
 							}
 						},
 						new Action.Type1<Exception>() { 
 							@Override public void raise(Exception thenError) throws Exception { 
-								thenPromise.reject(thenError);
+								allPromise.reject(thenError);
 							}
 						},
 						new Action.Type1<Progress>() { 
 							@Override public void raise(Progress thenProgress) throws Exception { 
-								thenPromise.notify(thenProgress);
+								allPromise.notify(thenProgress);
 							}
 						}
 		            );        			
@@ -550,10 +550,10 @@ public class Promise extends PromiseBase<Object> {
         }
         else
         {
-        	thenPromise.resolve(allResultArray);
+        	allPromise.resolve(thenResultArray);
         }
         
         // Return
-        return thenPromise;
+        return allPromise;
     }
 }

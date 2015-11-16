@@ -441,20 +441,20 @@ namespace CLK.Promises
             #endregion
 
             // Promise
-            Promise thenPromise = new Promise();
+            Promise allPromise = new Promise();
 
-            // AllNewPromise
-            int allResultCount = 0;
-            Action<int> thenAction = delegate (int promiseIndex)
+            // AllPromise
+            int thenResultCount = 0;
+            Action<int> thenAction = delegate (int thenPromiseIndex)
             {
-                promiseList[promiseIndex].Then(
+                promiseList[thenPromiseIndex].Then(
                     delegate ()
                     {
-                        allResultCount++;
-                        if (allResultCount == promiseList.Count) thenPromise.Resolve();
+                        thenResultCount++;
+                        if (thenResultCount == promiseList.Count) allPromise.Resolve();
                     },
-                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
-                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                    delegate (Exception thenError) { allPromise.Reject(thenError); },
+                    delegate (Progress thenProgress) { allPromise.Notify(thenProgress); }
                 );
             };
 
@@ -468,11 +468,11 @@ namespace CLK.Promises
             }
             else
             {
-                thenPromise.Resolve();
+                allPromise.Resolve();
             }
 
             // Return
-            return thenPromise;
+            return allPromise;
         }
 
         public static ResultPromise<List<TNewResult>> AllNewPromise<TNewResult>(List<ResultPromise<TNewResult>> promiseList)
@@ -484,25 +484,25 @@ namespace CLK.Promises
             #endregion
 
             // Promise
-            ResultPromise<List<TNewResult>> thenPromise = new ResultPromise<List<TNewResult>>();
+            ResultPromise<List<TNewResult>> allPromise = new ResultPromise<List<TNewResult>>();
 
             // ResultArray
-            List<TNewResult> allResultArray = new List<TNewResult>();
-            for (int i = 0; i < promiseList.Count; i++) allResultArray.Add(default(TNewResult));
+            List<TNewResult> thenResultList = new List<TNewResult>();
+            for (int i = 0; i < promiseList.Count; i++) thenResultList.Add(default(TNewResult));
 
             // AllNewPromise
-            int allResultCount = 0;            
-            Action<int> thenAction = delegate (int promiseIndex)
+            int thenResultCount = 0;            
+            Action<int> thenAction = delegate (int thenPromiseIndex)
             {
-                promiseList[promiseIndex].Then(
+                promiseList[thenPromiseIndex].Then(
                     delegate (TNewResult thenResult)
                     {
-                        allResultArray[promiseIndex] = thenResult;
-                        allResultCount++;                                     
-                        if (allResultCount == promiseList.Count) thenPromise.Resolve(allResultArray);
+                        thenResultList[thenPromiseIndex] = thenResult;
+                        thenResultCount++;                                     
+                        if (thenResultCount == promiseList.Count) allPromise.Resolve(thenResultList);
                     },
-                    delegate (Exception thenError) { thenPromise.Reject(thenError); },
-                    delegate (Progress thenProgress) { thenPromise.Notify(thenProgress); }
+                    delegate (Exception thenError) { allPromise.Reject(thenError); },
+                    delegate (Progress thenProgress) { allPromise.Notify(thenProgress); }
                 );
             };
 
@@ -516,11 +516,11 @@ namespace CLK.Promises
             }
             else
             {
-                thenPromise.Resolve(allResultArray);
+                allPromise.Resolve(thenResultList);
             }
 
             // Return
-            return thenPromise;
+            return allPromise;
         }
     }
 }
