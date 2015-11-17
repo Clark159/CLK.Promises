@@ -132,7 +132,7 @@ namespace CLK.Promises.WinConsole
                 // ========== End ==========
                 .Progress(delegate (Progress progress)
                 {
-                    Console.WriteLine("Progress:" + progress.Description);
+                Console.WriteLine("Progress:" + progress.LocalizedDescription);
                 })
                 .Fail(delegate (Exception error)
                 {
@@ -145,9 +145,9 @@ namespace CLK.Promises.WinConsole
             ;
 
             // Operate 
-            promise.Notify(new Progress(0, 100, "0%"));
-            promise.Notify(new Progress(50, 100, "50%"));
-            promise.Notify(new Progress(100, 100, "100%"));
+            promise.Notify(new Progress("0%", 0, 100));
+            promise.Notify(new Progress("50%", 50, 100));
+            promise.Notify(new Progress("100%", 100, 100));
             promise.Resolve();
         }
     }

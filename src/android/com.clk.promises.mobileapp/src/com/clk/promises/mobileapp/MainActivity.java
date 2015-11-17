@@ -162,7 +162,7 @@ public class MainActivity extends Activity {
     		// ========== end ==========
     		.progress(new Action.Type1<Progress>() {
 				@Override public void raise(Progress progress) {
-					writeLine("Progress:" + progress.getDescription());
+					writeLine("Progress:" + progress.getLocalizedDescription());
 				}    			
     		})
     		.fail(new Action.Type1<Exception>(){
@@ -178,9 +178,9 @@ public class MainActivity extends Activity {
 	    ;
     	
     	// operate 
-        promise.notify(new Progress(0, 100, "0%"));
-        promise.notify(new Progress(50, 100, "50%"));
-        promise.notify(new Progress(100, 100, "100%"));
+        promise.notify(new Progress("0%", 0, 100));
+        promise.notify(new Progress("50%", 50, 100));
+        promise.notify(new Progress("100%", 100, 100));
         promise.resolve();
 	}
 	

@@ -1,18 +1,29 @@
 package com.clk.promises;
 
+import com.clk.StringHelper;
+
 public class Progress {
 	
 	// constructors
-    public Progress(int completedCount, int totalCount, String description)
+    public Progress(String localizedDescription, int completedCount, int totalCount)
     {
+    	// contracts
+        if (StringHelper.isNullOrEmpty(localizedDescription) == true) throw new IllegalArgumentException();
+        
         // default            
     	_completedCount = completedCount;
     	_totalCount = totalCount;
-    	_description = description;
+    	_localizedDescription = localizedDescription;
     }
 
 
     // properties
+    private String _localizedDescription;
+	public final String getLocalizedDescription()
+	{
+		return _localizedDescription;
+	}
+	
     private int _completedCount;
 	public final int getCompletedCount()
 	{
@@ -23,11 +34,5 @@ public class Progress {
 	public final int getTotalCount()
 	{
 		return _totalCount;
-	}
-	
-	private String _description;
-	public final String getDescription()
-	{
-		return _description;
 	}
 }

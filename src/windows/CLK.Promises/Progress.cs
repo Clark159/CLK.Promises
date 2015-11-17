@@ -9,20 +9,26 @@ namespace CLK.Promises
     public sealed class Progress
     {
         // Constructors
-        public Progress(int completedCount, int totalCount, string description = null)
+        public Progress(string localizedDescription, int completedCount, int totalCount)
         {
-            // Default            
+            #region Contracts
+
+            if (string.IsNullOrEmpty(localizedDescription) == true) throw new ArgumentNullException();
+
+            #endregion
+
+            // Default           
+            this.LocalizedDescription = localizedDescription;
             this.CompletedCount = completedCount;
-            this.TotalCount = totalCount;
-            this.Description = description;
+            this.TotalCount = totalCount;            
         }
 
 
-        // Properties
+        // Properties 
+        public string LocalizedDescription { get; }
+
         public int CompletedCount { get; }
 
-        public int TotalCount { get; }       
-
-        public string Description { get; }
+        public int TotalCount { get; }      
     }
 }
