@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:CLK/CLK.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:CLKPromises/CLKPromises.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:CLKPromisesMoblieApp/CLKPromisesMoblieApp.xcodeproj">
+   </FileRef>
+</Workspace>
