@@ -141,7 +141,7 @@ public class MainActivity extends Activity {
 				}            	
             })
             
-            // ========== Throw ==========
+            // ========== throw ==========
             .then(new Action.Type0() {
 				@Override public void raise() throws Exception {
 					throw new Exception("III");

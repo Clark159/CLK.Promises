@@ -447,10 +447,10 @@ public class Promise extends PromiseBase<Object> {
         // contracts
         if (promiseList == null) throw new IllegalArgumentException();
         
-        // Promise
+        // promise
         final Promise allPromise = new Promise();
               
-        // AllNewPromise
+        // allPromise
         final int[] thenResultCount = new int[1]; thenResultCount[0] = 0;        
         Action.Type1<Integer> thenAction = 
     		new Action.Type1<Integer>() {
@@ -476,7 +476,7 @@ public class Promise extends PromiseBase<Object> {
 				}        	
 	        };
         	
-	    // Execute           
+	    // execute           
         if (promiseList.size() != 0)
         {
             for (int i = 0; i < promiseList.size(); i++)
@@ -493,7 +493,7 @@ public class Promise extends PromiseBase<Object> {
         	allPromise.resolve();
         }
         
-        // Return
+        // return
         return allPromise;
     }
 
@@ -502,14 +502,14 @@ public class Promise extends PromiseBase<Object> {
         // contracts
         if (promiseList == null) throw new IllegalArgumentException();
         
-        // Promise
+        // promise
         final ResultPromise<ArrayList<TNewResult>> allPromise = new ResultPromise<ArrayList<TNewResult>>();
               
-        // ResultArray
+        // resultArray
         final ArrayList<TNewResult> thenResultArray = new ArrayList<TNewResult>();
         for (int i = 0; i < promiseList.size(); i++) thenResultArray.add(null);
         
-        // AllNewPromise
+        // allNewPromise
         final int[] thenResultCount = new int[1]; thenResultCount[0] = 0;        
         Action.Type1<Integer> thenAction = 
     		new Action.Type1<Integer>() {				
@@ -536,7 +536,7 @@ public class Promise extends PromiseBase<Object> {
 				}        	
 	        };
         	
-	    // Execute           
+	    // execute           
         if (promiseList.size() != 0)
         {
             for (int i = 0; i < promiseList.size(); i++)
@@ -553,7 +553,7 @@ public class Promise extends PromiseBase<Object> {
         	allPromise.resolve(thenResultArray);
         }
         
-        // Return
+        // return
         return allPromise;
     }
 }
