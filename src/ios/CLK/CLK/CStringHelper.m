@@ -5,7 +5,7 @@
 
 
 // methods
-+ (bool) isNullOrEmpty:(NSString*)value {
++ (BOOL) isNullOrEmpty:(NSString*)value {
     
     // require
     if(value == nil) return true;
