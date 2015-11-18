@@ -1,0 +1,6 @@
+framework module CLKPromises {
+  umbrella header "CLKPromises.h"
+
+  export *
+  module * { export * }
+}
