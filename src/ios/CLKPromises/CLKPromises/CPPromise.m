@@ -436,5 +436,103 @@
 }
 
 
+// all
++ (CPPromise*) allPromise:(NSMutableArray*)promiseList
+{
+    // contracts
+    if (promiseList == nil) @throw [[CInvalidArgumentException alloc] init];
+    
+    // promise
+    CPPromise* allPromise = [[CPPromise alloc] init];
+    
+    // allPromise
+    __block int thenResultCount = 0;
+    void(^thenAction)(int) = [^void(int thenPromiseIndex)
+                              {
+                                  [((CPResultPromise*)[promiseList objectAtIndex:thenPromiseIndex])
+                                   then:[^void(id thenResult)
+                                         {
+                                             thenResultCount = thenResultCount + 1;
+                                             if (thenResultCount == promiseList.count) [allPromise resolve];
+                                         }copy]
+                                   onRejected:[^void(NSException* thenError)
+                                               {
+                                                   [allPromise reject:thenError];
+                                               }copy]
+                                   onNotified:[^void(CPProgress* thenProgress)
+                                               {
+                                                   [allPromise notify:thenProgress];
+                                               }copy]
+                                   ];
+                              } copy];
+    
+    // execute
+    if (promiseList.count != 0)
+    {
+        for (int i = 0; i < promiseList.count; i++)
+        {
+            thenAction(i);
+        }
+    }
+    else
+    {
+        [allPromise resolve];
+    }
+    
+    // return
+    return allPromise;
+}
+
++ (CPResultPromise*) allNewPromise:(NSMutableArray*)promiseList
+{
+    // contracts
+    if (promiseList == nil) @throw [[CInvalidArgumentException alloc] init];
+    
+    // promise
+    CPResultPromise* allPromise = [[CPResultPromise alloc] init];
+    
+    // resultArray
+    NSMutableArray* thenResultArray =  [[NSMutableArray alloc] init];
+    for (int i = 0; i < promiseList.count ; i++) [thenResultArray addObject:[[NSObject alloc] init]];
+    
+    // allNewPromise
+    __block int thenResultCount = 0;
+    void(^thenAction)(int) = [^void(int thenPromiseIndex)
+                              {
+                                  [((CPResultPromise*)[promiseList objectAtIndex:thenPromiseIndex])
+                                   then:[^void(id thenResult)
+                                         {
+                                             [thenResultArray replaceObjectAtIndex:thenPromiseIndex withObject:thenResult];
+                                             thenResultCount = thenResultCount + 1;
+                                             if (thenResultCount == promiseList.count) [allPromise resolve:thenResultArray];
+                                         }copy]
+                                   onRejected:[^void(NSException* thenError)
+                                               {
+                                                   [allPromise reject:thenError];
+                                               }copy]
+                                   onNotified:[^void(CPProgress* thenProgress)
+                                               {
+                                                   [allPromise notify:thenProgress];
+                                               }copy]
+                                   ];
+                              } copy];
+    
+    // execute
+    if (promiseList.count != 0)
+    {
+        for (int i = 0; i < promiseList.count; i++)
+        {
+           thenAction(i);
+        }
+    }
+    else
+    {
+        [allPromise resolve:thenResultArray];
+    }
+    
+    // return
+    return allPromise;
+}
+
 
 @end

@@ -25,82 +25,106 @@
     // promise
     CPPromise* promise = [[CPPromise alloc]init];
     
-    [[[[[[[[[[[[[[[[[
-               promise
+    [[[[[[[[[[[[[[[[[[[
+                       promise
+                       
+                       // ========== then ==========
+                       then:[^void(void)
+                             {
+                                 [this writeLine:@"AAA"];
+                             }copy]]
+                      
+                      // thenPromise - resolve
+                      thenPromise:[^CPPromise*(void)
+                                   {
+                                       CPPromise* newPromise = [[CPPromise alloc]init];
+                                       [newPromise resolve];
+                                       return newPromise;
+                                   }copy]]
+                     
+                     then:[^void(void)
+                           {
+                               [this writeLine:@"BBB"];
+                           }copy]]
+                    
+                    // thenPromise - reject
+                    thenPromise:[^CPPromise*(void)
+                                 {
+                                     CPPromise* newPromise = [[CPPromise alloc]init];
+                                     [newPromise reject:[[NSException alloc] initWithName:@"CCC" reason:nil userInfo:nil]];
+                                     return newPromise;
+                                 }copy]]
+                   
+                   fail:[^void(NSException* error)
+                         {
+                             [this writeLine:error.name];
+                         }copy]]
+                  
+                  
+                  // ========== thenNew ==========
+                  thenNew:[^NSString*(void)
+                           {
+                               return @"DDD";
+                           }copy]]
+                 
+                 then:[^void(NSString* result)
+                       {
+                           [this writeLine:result];
+                       }copy]]
+                
+                // thenNewPromise - resolve
+                thenNewPromise:[^CPResultPromise*(void)
+                                {
+                                    CPResultPromise* newPromise = [[CPResultPromise alloc]init];
+                                    [newPromise resolve:@"EEE"];
+                                    return newPromise;
+                                }copy]]
                
-               // ========== then ==========
-               then:[^void(void)
+               then:[^void(NSString* result)
                      {
-                         [this writeLine:@"AAA"];
+                         [this writeLine:result];
                      }copy]]
               
-              // thenPromise - resolve
-              thenPromise:[^CPPromise*(void)
-                           {
-                               CPPromise* newPromise = [[CPPromise alloc]init];
-                               [newPromise resolve];
-                               return newPromise;
-                           }copy]]
+              
+              // thenPromise - reject
+              thenNewPromise:[^CPResultPromise*(void)
+                              {
+                                  CPResultPromise* newPromise = [[CPResultPromise alloc]init];
+                                  [newPromise reject:[[NSException alloc] initWithName:@"FFF" reason:nil userInfo:nil]];
+                                  return newPromise;
+                              }copy]]
              
-             then:[^void(void)
+             fail:[^void(NSException* error)
                    {
-                       [this writeLine:@"BBB"];
+                       [this writeLine:error.name];
                    }copy]]
             
-            // thenPromise - reject
-            thenPromise:[^CPPromise*(void)
-                         {
-                             CPPromise* newPromise = [[CPPromise alloc]init];
-                             [newPromise reject:[[NSException alloc] initWithName:@"CCC" reason:nil userInfo:nil]];
-                             return newPromise;
-                         }copy]]
             
-           fail:[^void(NSException* error)
+            // ========== all ==========
+            thenNewPromise:[^CPResultPromise*(void)
+                            {
+                                NSMutableArray* promiseList = [[NSMutableArray alloc]init];
+                                
+                                CPResultPromise* promiseA = [[CPResultPromise alloc]init];
+                                [promiseA resolve:@"GGG"];
+                                [promiseList addObject:promiseA];
+                                
+                                CPResultPromise* promiseB = [[CPResultPromise alloc]init];
+                                [promiseB resolve:@"HHH"];
+                                [promiseList addObject:promiseB];
+                                
+                                return [CPPromise allNewPromise:promiseList];
+                            }copy]]
+           
+           then:[^void(NSMutableArray* resultList)
                  {
-                     [this writeLine:error.name];
+                     for (NSString* result in resultList)
+                     {
+                         [this writeLine:result];
+                     }
                  }copy]]
           
           
-           // ========== thenNew ==========
-          thenNew:[^NSString*(void)
-                       {
-                           return @"DDD";
-                       }copy]]
-
-          then:[^void(NSString* result)
-                {
-                    [this writeLine:result];
-                }copy]]
-            
-          // thenNewPromise - resolve
-          thenNewPromise:[^CPResultPromise*(void)
-                       {
-                           CPResultPromise* newPromise = [[CPResultPromise alloc]init];
-                           [newPromise resolve:@"EEE"];
-                           return newPromise;
-                       }copy]]
-         
-         then:[^void(NSString* result)
-               {
-                   [this writeLine:result];
-               }copy]]
-          
-          
-           // thenPromise - reject
-           thenNewPromise:[^CPResultPromise*(void)
-                        {
-                            CPResultPromise* newPromise = [[CPResultPromise alloc]init];
-                            [newPromise reject:[[NSException alloc] initWithName:@"FFF" reason:nil userInfo:nil]];
-                            return newPromise;
-                        }copy]]
-
-         fail:[^void(NSException* error)
-               {
-                   [this writeLine:error.name];
-               }copy]]
-
-        
-        
           // ========== throw ==========
           then:[^void(void)
                 {
@@ -116,6 +140,7 @@
               {
                   [this writeLine:error.name];
               }copy]]
+       
        
        // ========== end ==========
        progress:[^void(CPProgress* progressx)

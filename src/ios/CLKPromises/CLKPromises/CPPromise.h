@@ -51,4 +51,10 @@
 - (CPPromise*) progress:(void(^)(CPProgress*))onNotified;
 
 
+// all
++ (CPPromise*) allPromise:(NSMutableArray*)promiseList;
+
++ (CPResultPromise*) allNewPromise:(NSMutableArray*)promiseList;
+
+
 @end
