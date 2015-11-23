@@ -5,15 +5,15 @@
 
 
 // constructors
-- (instancetype) initWithLocalizedDescription:(NSString*)localizedDescription completedCount:(int)completedCount totalCount:(int)totalCount;
+- (instancetype) initWithLocalizedDescription:(NSString*)localizedDescription completedCount:(NSInteger)completedCount totalCount:(NSInteger)totalCount;
 
 
 // properties
 @property (readonly, retain) NSString* localizedDescription;
 
-@property (readonly, assign) int completedCount;
+@property (readonly, assign) NSInteger completedCount;
 
-@property (readonly, assign) int totalCount;
+@property (readonly, assign) NSInteger totalCount;
 
 
 @end

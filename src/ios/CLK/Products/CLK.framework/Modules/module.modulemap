@@ -1,6 +1,0 @@
-framework module CLK {
-  umbrella header "CLK.h"
-
-  export *
-  module * { export * }
-}
