@@ -1,5 +1,6 @@
 #import <CLK/CLK.h>
 #import "CPPromise.h"
+#import "CPPromiseBaseExtension.h"
 
 
 @implementation CPPromise

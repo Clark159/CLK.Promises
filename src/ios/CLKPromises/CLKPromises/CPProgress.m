@@ -5,7 +5,7 @@
 
 
 // constructors
-- (instancetype) initWithLocalizedDescription:(NSString*)localizedDescription completedCount:(int)completedCount totalCount:(int)totalCount {
+- (instancetype) initWithLocalizedDescription:(NSString*)localizedDescription completedCount:(NSInteger)completedCount totalCount:(NSInteger)totalCount {
     
     // super
     self = [super init];

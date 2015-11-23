@@ -1,5 +1,6 @@
 #import <CLK/CLK.h>
 #import "CPPromiseBase.h"
+#import "CPPromiseBaseExtension.h"
 
 
 // class

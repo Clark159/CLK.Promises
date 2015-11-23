@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4B5E669C1C0390FD00E1AFA7 /* CPPromiseBaseExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B5E669A1C0390FD00E1AFA7 /* CPPromiseBaseExtension.h */; };
 		4B707F301BFB7500000EB43D /* CPResultPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B707F2E1BFB7500000EB43D /* CPResultPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4B707F311BFB7500000EB43D /* CPResultPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B707F2F1BFB7500000EB43D /* CPResultPromise.m */; };
 		4BE2E77B1BFB2B66002804E0 /* CLKPromises.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BE2E77A1BFB2B66002804E0 /* CLKPromises.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -20,6 +21,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4B5E669A1C0390FD00E1AFA7 /* CPPromiseBaseExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPPromiseBaseExtension.h; sourceTree = "<group>"; };
 		4B707F2E1BFB7500000EB43D /* CPResultPromise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPResultPromise.h; sourceTree = "<group>"; };
 		4B707F2F1BFB7500000EB43D /* CPResultPromise.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CPResultPromise.m; sourceTree = "<group>"; };
 		4BE2E7771BFB2B66002804E0 /* CLKPromises.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CLKPromises.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -66,16 +68,17 @@
 		4BE2E7791BFB2B66002804E0 /* CLKPromises */ = {
 			isa = PBXGroup;
 			children = (
+				4BE2E77A1BFB2B66002804E0 /* CLKPromises.h */,
 				4BE2E7A91BFB2C4C002804E0 /* CPProgress.h */,
 				4BE2E7AA1BFB2C4C002804E0 /* CPProgress.m */,
-				4BE2E7AB1BFB2C4C002804E0 /* CPPromiseBase.h */,
-				4BE2E7AC1BFB2C4C002804E0 /* CPPromiseBase.m */,
-				4BE2E77A1BFB2B66002804E0 /* CLKPromises.h */,
-				4BE2E77C1BFB2B66002804E0 /* Info.plist */,
 				4BE2E7B31BFB2EEC002804E0 /* CPPromise.h */,
 				4BE2E7B41BFB2EEC002804E0 /* CPPromise.m */,
+				4BE2E7AB1BFB2C4C002804E0 /* CPPromiseBase.h */,
+				4BE2E7AC1BFB2C4C002804E0 /* CPPromiseBase.m */,
+				4B5E669A1C0390FD00E1AFA7 /* CPPromiseBaseExtension.h */,
 				4B707F2E1BFB7500000EB43D /* CPResultPromise.h */,
 				4B707F2F1BFB7500000EB43D /* CPResultPromise.m */,
+				4BE2E77C1BFB2B66002804E0 /* Info.plist */,
 			);
 			path = CLKPromises;
 			sourceTree = "<group>";
@@ -88,6 +91,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4BE2E7AD1BFB2C4D002804E0 /* CPProgress.h in Headers */,
+				4B5E669C1C0390FD00E1AFA7 /* CPPromiseBaseExtension.h in Headers */,
 				4BE2E77B1BFB2B66002804E0 /* CLKPromises.h in Headers */,
 				4BE2E7AF1BFB2C4D002804E0 /* CPPromiseBase.h in Headers */,
 				4BE2E7B51BFB2EEC002804E0 /* CPPromise.h in Headers */,
