@@ -113,6 +113,10 @@
                                 [promiseB resolve:@"HHH"];
                                 [promiseList addObject:promiseB];
                                 
+                                CPResultPromise* promiseC = [[CPResultPromise alloc]init];
+                                [promiseC resolve:nil];
+                                [promiseList addObject:promiseC];
+                                
                                 return [CPPromise allNewPromise:promiseList];
                             }copy]]
            
@@ -120,7 +124,10 @@
                  {
                      for (NSString* result in resultList)
                      {
-                         [this writeLine:result];
+                         if ([result isEqual:[NSNull null]] == false)
+                         {
+                             [this writeLine:result];
+                         }
                      }
                  }copy]]
           

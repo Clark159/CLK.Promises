@@ -503,7 +503,11 @@
                                   [((CPResultPromise*)[promiseList objectAtIndex:thenPromiseIndex])
                                    then:[^void(id thenResult)
                                          {
-                                             [thenResultArray replaceObjectAtIndex:thenPromiseIndex withObject:thenResult];
+                                             if (thenResult != nil)
+                                                 [thenResultArray replaceObjectAtIndex:thenPromiseIndex withObject:thenResult];
+                                             else{
+                                                 [thenResultArray replaceObjectAtIndex:thenPromiseIndex withObject:[NSNull null]];
+                                             }
                                              thenResultCount = thenResultCount + 1;
                                              if (thenResultCount == promiseList.count) [allPromise resolve:thenResultArray];
                                          }copy]
