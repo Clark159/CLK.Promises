@@ -22,15 +22,6 @@
 	![解決方案01](https://raw.githubusercontent.com/Clark159/clark159.github.io/master/_posts/%5BCLK.Promises%5D/%5BCLK.Promises%5D%20%E8%B7%A8%E5%B9%B3%E5%8F%B0%E7%9A%84%E9%9D%9E%E5%90%8C%E6%AD%A5Promise%E6%A8%A1%E5%9E%8B/%E8%A7%A3%E6%B1%BA%E6%96%B9%E6%A1%8801.png)
 
 
-##使用說明##
-
-- Windows平台使用說明 (C#)(施工中)
-
-- Android平台使用說明 (Java)(施工中)
-
-- iOS平台使用說明 (Objective-C)(施工中)
-
-
 ##參考資料##
 
 - [JavaScript Promise迷你書（中文版）](http://liubin.github.io/promises-book/)
